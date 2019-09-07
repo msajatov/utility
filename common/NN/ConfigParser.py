@@ -22,7 +22,7 @@ class ConfigParser:
         self.era = era
         self.file_path = file_path
 
-        self.sample_sets = []
+        self.samples = []
         self.target_categories = []
         self.variable_names = []
         self.additional_variable_names = []
@@ -59,7 +59,7 @@ class ConfigParser:
 
         #for cat in self.target_categories:
             #print cat.name + ":"
-            #for sset in cat.sample_sets:
+            #for sset in cat.samples:
                 #print sset
             #print "\n"
 
@@ -71,7 +71,7 @@ class ConfigParser:
             self.cut_dict = cuts
 
     def get_sample_sets(self):
-        return self.sample_sets
+        return self.samples
 
     def get_target_categories(self):
         return self.target_categories
@@ -132,9 +132,9 @@ class ConfigParser:
             category = categories[0]
 
             sample_set = Sample(key, source_name, cutObject, category, event_weight, eff_weight)
-            sample_set.full_path = os.path.join(sample_set.source_file_name, self.data_root_path)
+            sample_set.full_path = os.path.join(self.data_root_path, sample_set.source_file_name)
 
-            self.sample_sets.append(sample_set)
+            self.samples.append(sample_set)
 
             #print sample_set
 
@@ -188,8 +188,8 @@ class ConfigParser:
 
     def _add_samples_to_categories(self):
         for cat in self.target_categories:
-            sample_sets = [sample for sample in self.sample_sets if sample.target.name == cat.name]
-            cat.sample_sets = sample_sets
+            sample_sets = [sample for sample in self.samples if sample.target.name == cat.name]
+            cat.samples = sample_sets
 
     def _assert_channel(self, entry):
         if type(entry) is dict:
