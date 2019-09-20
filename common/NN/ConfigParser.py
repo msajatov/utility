@@ -1,7 +1,7 @@
 import json
 import sys
-from Sample import Sample
-from TargetCategory import TargetCategory
+from common.NN.Sample import Sample
+from common.NN.TargetCategory import TargetCategory
 from common.Tools.CutObject.CutObject import Cut
 import os
 

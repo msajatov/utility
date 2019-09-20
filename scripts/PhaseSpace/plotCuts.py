@@ -1,5 +1,7 @@
 from common.NN.ConfigParser import ConfigParser
 from common.NN.DataReader import DataReader
+from common.FractionPlotter import FractionPlotter
+from common.NN.Settings import Settings
 
 import root_numpy as rn
 import ROOT as R
@@ -25,14 +27,18 @@ def main():
     
     parser = ConfigParser(channel, era, configpath)
     
+    settings = Settings(channel, era, "keras", "none")
+    settings.config_parser = parser
+    
     samples = [sset for sset in parser.samples if (not "_full" in sset.name)]
     samples = [sset for sset in samples if (not "AR" in sset.name)]
     
     data = [sset for sset in parser.samples if "data_AR" in sset.name]
+    test = [sset for sset in parser.samples if "QCD" in sset.name]
     
     reader = DataReader()
     
-    for sset in [data[0]]:
+    for sset in [test[0]]:
         print sset
 #         df = reader.get_data_for_sample(sset, ["pt_1", "pt_2", "iso_1", "iso_2"])
 #         print df   
@@ -94,9 +100,14 @@ def main():
 #         plot(canvases, tree, ["iso_1:iso_2"], basecut.switchCutTo("-ANTIISO2-"), "ANTIISO2")
 #         plot(canvases, tree, ["iso_1:iso_2"], basecut.switchCutTo("-ANTIISO1-"), "ANTIISO1")
 #         plot(canvases, tree, ["iso_1:iso_2"], basecut.switchCutTo("-ANTIISO-"), "ANTIISO")
+#         title = "{0} - ANTIISO2".format(sset.name)
+#         item = "iso_1"
+#         selection = basecut.switchCutTo("-ANTIISO2-").get()
+#         ccv = R.TCanvas("{0} - {1}".format(title, item), "{0} - {1}".format(title, item))
+#         tree.Draw(item, selection)
         
-        plot(canvases, tree, ["iso_1"], basecut.switchCutTo("-ANTIISO-"), "ANTIISO")
-        plot(canvases, tree, ["iso_2"], basecut.switchCutTo("-ANTIISO-"), "ANTIISO")
+#         plot(canvases, tree, ["iso_1"], basecut.switchCutTo("-ANTIISO2-"), "{0} - ANTIISO2".format(sset.name))
+#         plot(canvases, tree, ["iso_2"], basecut.switchCutTo("-ANTIISO1-"), "{0} - ANTIISO1".format(sset.name))
 
 #         stacks = []
         
@@ -120,10 +131,29 @@ def main():
 #         R.TCanvas("{0} - {1}".format("title", "item"), "{0} - {1}".format("title", "item"))      
 #         
 #         stack.Draw("nostack")
-        
+
+        sset.cut = sset.cut.switchCutTo("-ANTIISO1-")
+#         
+        doStuff([sset], settings)
         
         x = raw_input("raw input")
+
+def doStuff(samples, settings):
+
+    plotter = FractionPlotter(settings)
+
+    outdirpath = "output"
+    try:
+        if not os.path.exists(outdirpath):
+            os.makedirs(outdirpath)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
         
+    print "making val_plots"
+
+    plotter.make_val_plots(samples, "iso_2", "", outdirpath)
+   
         
 # def stackPlot(canvases, stack, tree, what, cut, title, new=True):
 #     
@@ -170,6 +200,7 @@ def plot(canvases, tree, what, cut, title):
     print cut.original
     
     for item in what:
+        print item
         canvases.append(R.TCanvas("{0} - {1}".format(title, item), "{0} - {1}".format(title, item)))
         tree.Draw(item, selection)
         

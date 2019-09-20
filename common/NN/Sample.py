@@ -17,7 +17,7 @@ class Sample:
         result += "[Sample: " + "\n"
         result += "Name: " + self.name + "\n"
         result += "Source: " + self.source_file_name + "\n"
-        result += "Source Path: " + self.source_file_name + "\n"
+        result += "Source Path: " + self.full_path + "\n"
         result += "Cut Alias: " + self.cut.original + "\n"
         result += "Cut: " + self.cut.get() + "\n"
         result += "Target: " + str(self.target) + "\n"
