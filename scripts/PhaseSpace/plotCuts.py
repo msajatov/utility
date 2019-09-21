@@ -29,6 +29,7 @@ def main():
     samples = [sset for sset in samples if (not "AR" in sset.name)]
     
     data = [sset for sset in parser.samples if "data_AR" in sset.name]
+    test = [sset for sset in samples if ("W_full" in sset.name)]
     
     reader = DataReader()
     
@@ -95,8 +96,16 @@ def main():
 #         plot(canvases, tree, ["iso_1:iso_2"], basecut.switchCutTo("-ANTIISO1-"), "ANTIISO1")
 #         plot(canvases, tree, ["iso_1:iso_2"], basecut.switchCutTo("-ANTIISO-"), "ANTIISO")
         
-        plot(canvases, tree, ["iso_1"], basecut.switchCutTo("-ANTIISO-"), "ANTIISO")
-        plot(canvases, tree, ["iso_2"], basecut.switchCutTo("-ANTIISO-"), "ANTIISO")
+        plot(canvases, tree, ["mt_1"], basecut.switchCutTo("-ANTIISO-"), "all - ANTIISO")
+        
+        gentaucut = basecut + "((gen_match_1 == 5 & gen_match_2 == 5 ))"
+        genjetcut = basecut + "( ( gen_match_1 == 6) | (gen_match_2 == 6 ) )"
+        
+        print gentaucut.get()
+        print genjetcut.get()
+        
+        plot(canvases, tree, ["mt_1"], gentaucut, "tau")
+        plot(canvases, tree, ["mt_1"], genjetcut, "jet")
 
 #         stacks = []
         
