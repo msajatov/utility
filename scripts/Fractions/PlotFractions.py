@@ -93,7 +93,7 @@ def run(args):
 
     settings.filtered_samples = complete_sample_sets
     
-    prediction_input_path = "/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output/predictions/4cat_vars8/2017"
+    prediction_input_path = "/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output/predictions/4cat_vars6/2017"
     
     for sample in complete_sample_sets:
         sample.full_path = os.path.join(prediction_input_path, sample.source_file_name)
@@ -108,7 +108,9 @@ def run(args):
 
 
     for variable in bin_vars:
-        plotter.make_fraction_plots(ar_sample_sets, variable, "AR", outdirpath, selection=" && njets == 0")            
+        plotter.make_fraction_plots(ar_sample_sets, variable, "AR_njet_0", outdirpath, selection=" && njets == 0", ylabel="Background Fractions (njets = 0)")  
+        plotter.make_fraction_plots(ar_sample_sets, variable, "AR_njet_1", outdirpath, selection=" && njets == 1", ylabel="Background Fractions (njets = 1)") 
+        plotter.make_fraction_plots(ar_sample_sets, variable, "AR_njet_n", outdirpath, selection=" && njets > 1", ylabel="Background Fractions (njets > 1)")           
 
 
 if __name__ == '__main__':

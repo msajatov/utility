@@ -39,6 +39,7 @@ def main():
     plot(histos,canvas = "linear")
 
 
+
 def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions={}, optimizeTicks=True):
 
     histos = copy.deepcopy(histograms)
@@ -61,7 +62,7 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     width=700 
     height=600   
         
-    topMargin=0.08
+    topMargin=0.18
     bottomMargin=0.12
     leftMargin=0.15
     rightMargin=0.10
@@ -161,7 +162,7 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
 
     cv.SaveAs(outfile.replace(".root", ".png"))
     cv.SaveAs(outfile.replace(".png", ".root"))
-
+    
 
 def plot( histograms, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
 

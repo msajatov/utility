@@ -1,14 +1,16 @@
-import common.Plotting as pl
-from common.Tools.VarObject.VarObject import Var
+import utils.PlottingNew as pl
+from utils.VarObject import Var
 import root_numpy as rn
 import ROOT as R
 from ROOT import TFile
 import root_pandas as rp
-from common.NN.Settings import Settings
-from common.NN.ConfigParser import ConfigParser
-from common.NN.TargetCategory import TargetCategory
-from common.NN.Sample import Sample
+from FileManager import FileManager
+from Settings import Settings
+from ConfigParser import ConfigParser
+from TargetCategory import TargetCategory
+from SampleSet import SampleSet
 from pandas import DataFrame, concat
+from PathObject import makeDir
 import os
 import copy
 
@@ -17,6 +19,7 @@ class FractionPlotter:
 
     def __init__(self, settings):
         self.settings = settings
+        self.file_manager = settings.fraction_plot_file_manager
         self.config_parser = settings.config_parser
         self.target_names = self.config_parser.get_target_names()
 
@@ -46,12 +49,12 @@ class FractionPlotter:
             val_histo = self.get_histo_for_val(sample_set, var)
             val_histo_summary.append(val_histo)
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                            "lumi": "35.87", "title": "ANTIISO1"}
+                            "lumi": "41.5", "title": ""}
             outfilepath = "{0}/{1}_{2}_val_{3}_{4}.png".format(outdirpath, self.settings.channel, prefix, sample_set.name, bin_var)
             self.create_plot(val_histo, descriptions, outfilepath)
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                        "lumi": "35.87", "title": "ANTIISO1"}
+                        "lumi": "41.5", "title": ""}
         outfileprefix = "{0}/{1}_{2}_val_{3}_{4}".format(outdirpath, self.settings.channel, prefix, "inclusive", bin_var)
 
         # inclusive_histos = self.get_inclusive(var, val_histo_summary)
@@ -59,22 +62,22 @@ class FractionPlotter:
 
     # for each sample individually (TTJ, VVT etc.) and inclusive (all together)
     # legend: fractions, (tt_jet, w_jet, qcd_jet, other) or (tt, w, qcd)
-    def make_fraction_plots(self, sample_sets, bin_var, prefix, outdirpath, inclusive=False, selection="", ylabel="Background Fractions"):
+    def make_fraction_plots(self, sample_sets, bin_var, prefix, outdirpath, inclusive=False):
         fraction_histo_summary = {}
 
         var = Var(bin_var, self.settings.channel)
 
         for sample_set in sample_sets:
-            frac_histos = self.get_histos_for_fractions(sample_set, var, selection)
+            frac_histos = self.get_histos_for_fractions(sample_set, var)
             fraction_histo_summary[sample_set.name] = frac_histos
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                            "lumi": "41.5", "title": "", "yaxis": ylabel}
+                            "lumi": "41.5", "title": "", "yaxis": "Background Fractions"}
             outfile = "{0}/{1}_{2}_frac_{3}_{4}".format(outdirpath, self.settings.channel, prefix, sample_set.name, bin_var)
             self.create_plot(frac_histos, descriptions, "{0}.png".format(outfile))
             self.create_normalized_plot(frac_histos, descriptions, "{0}_norm.png".format(outfile))
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                        "lumi": "41.5", "title": "", "yaxis": ylabel}
+                        "lumi": "41.5", "title": "", "yaxis": "Background Fractions"}
         outfileprefix = "{0}/{1}_{2}_frac_{3}_{4}".format(outdirpath, self.settings.channel, prefix, "inclusive", bin_var)
 
         if inclusive:
@@ -109,7 +112,7 @@ class FractionPlotter:
             self.create_normalized_plot(inclusive_histos, descriptions, "{0}_norm.png".format(outfileprefix))
             self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
 
-    def get_histos_for_fractions(self, sample_set, var, selection=""):
+    def get_histos_for_fractions(self, sample_set, var):
         histograms = {}
         bin_var = var.name
         
@@ -118,14 +121,14 @@ class FractionPlotter:
         else:
             branches = [bin_var] + self.config_parser.weights + self.get_frac_branches()
 
-        events = self.get_events_for_sample(sample_set, branches, selection)
+        events = self.get_events_for_sample_set(sample_set, branches)
 
         dict = self.get_branch_frac_dict()
 
         for i in range(0, len(self.get_frac_branches())):
             print "index is:"
             print i
-            hist = self.fill_histo(events, "", "predicted_frac_prob_{0}".format(i) + " * " + sample_set.eff_weight, var)
+            hist = self.fill_histo(events, "", "predicted_frac_prob_{0}".format(i) + " * " + sample_set.weight, var)
             frac_name = dict["predicted_frac_prob_{0}".format(i)]
             histograms[frac_name] = hist
 
@@ -165,19 +168,12 @@ class FractionPlotter:
     def get_histo_for_val(self, sample_set, var):
         histograms = {}
         bin_var = var.name
-        if "EMB" in sample_set.name:
-            branches = [bin_var] + ["*weight*"] + ["*gen_match*"]
-        else:
-            branches = [bin_var] + self.config_parser.weights
-        
-        
-        print branches
+        branches = [bin_var]
 
-        events = self.get_events_for_sample(sample_set, branches)
+        events = self.get_events_for_sample_set(sample_set, branches)
 
-        #hist = self.fill_histo(events, "", "1.0 * " + sample_set.eff_weight, var)
         hist = self.fill_histo(events, "", "1.0", var)
-        histograms["EMB"] = hist
+        histograms["val"] = hist
 
         return histograms
 
@@ -202,15 +198,6 @@ class FractionPlotter:
         sample_path = "{0}/{1}".format(root_path, sample_set.source_file_name)
         sample_path = sample_path.replace("WJets", "W")
         select = sample_set.cut
-
-        events = rp.read_root(paths=sample_path, where=select,
-                              columns=branches)
-        return events
-    
-    def get_events_for_sample(self, sample_set, branches, selection=""):
-        sample_path = sample_set.full_path
-        sample_path = sample_path.replace("WJets", "W")
-        select = sample_set.cut.getForDF() + selection
 
         events = rp.read_root(paths=sample_path, where=select,
                               columns=branches)
