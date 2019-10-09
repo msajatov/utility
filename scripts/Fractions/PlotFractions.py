@@ -111,9 +111,10 @@ def run(args):
         label_0 = r"N_{jet} = 0"
         label_1 = r"N_{jet} = 1"
         label_n = r"N_{jet} > 1"
-        plotter.make_fraction_plots(ar_sample_sets, variable, "AR_njet_0", outdirpath, selection=" && njets == 0", ylabel="Background Fractions ({0})".format(label_0))  
-        plotter.make_fraction_plots(ar_sample_sets, variable, "AR_njet_1", outdirpath, selection=" && njets == 1", ylabel="Background Fractions ({0})".format(label_1)) 
-        plotter.make_fraction_plots(ar_sample_sets, variable, "AR_njet_n", outdirpath, selection=" && njets > 1", ylabel="Background Fractions ({0})".format(label_n))        
+        ##plotter.make_fraction_plots(ar_sample_sets, variable, "AR_njet_0", outdirpath, selection=" && njets == 0", ylabel="Background Fractions ({0})".format(label_0))  
+        #plotter.make_fraction_plots(ar_sample_sets, variable, "AR_njet_1", outdirpath, selection=" && njets == 1", ylabel="Background Fractions ({0})".format(label_1)) 
+        #plotter.make_fraction_plots(ar_sample_sets, variable, "AR_njet_n", outdirpath, selection=" && njets > 1", ylabel="Background Fractions ({0})".format(label_n)) 
+        plotter.make_fraction_plots(ar_sample_sets, variable, "AR_inclusive", outdirpath, ylabel="Background Fractions")       
 
 
 if __name__ == '__main__':
