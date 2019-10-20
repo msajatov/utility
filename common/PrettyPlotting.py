@@ -155,8 +155,8 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
     
     print dummy_ratio.GetXaxis().GetLabelSize()
 
-    cms1 = R.TLatex( 0.08, 0.93, "CMS" )
-    cms2 = R.TLatex( 0.170, 0.93, descriptions.get( "plottype", "ProjectWork" ) )
+    cms1 = R.TLatex( 0.15, 0.93, "CMS" )
+    cms2 = R.TLatex( 0.240, 0.93, descriptions.get( "plottype", "ProjectWork" ) )
 
     chtex = {"et": r"#font[42]{#scale[0.95]{e}}#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
     ch = descriptions.get( "channel", "  " )
@@ -244,17 +244,15 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
         cumul.Draw("same e2")
         data.Draw("same e1")
         leg.Draw()
-#         R.gPad.RedrawAxis()
+        R.gPad.RedrawAxis()
         cv.cd(2)
         dummy_ratio.Draw()
         ratio_error.Draw("same e2")
         ratio.Draw("same e1")
         if signal:
             signal_ratio.Draw("same hist")
-#         R.gPad.RedrawAxis()
-
-        cv.cd(2)
         R.gPad.RedrawAxis()
+
     
     if not outfile:
         outfile = "{0}_canvas.png".format(canvas)

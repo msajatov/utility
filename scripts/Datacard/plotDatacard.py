@@ -36,7 +36,7 @@ def main():
 #             makePlot(args.channel, u, args.out, args.era)
         #input = raw_input("Enter any key to exit parent: ")
         
-    indir = "/afs/cern.ch/work/m/msajatov/private/cms/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/shapes/emb_dc/cc"
+    indir = "/afs/cern.ch/work/m/msajatov/private/cms/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/shapes/emb_dc/{0}".format(args.out)
     for u in args.var:
         makePlot(args.channel, u, indir, args.era, "{0}_{1}_plots".format(args.out, args.era))
 
