@@ -1,3 +1,14 @@
+import common.PrettyPlotting as pl
+from common.Tools.VarObject.VarObject import Var
+
+import root_numpy as rn
+import ROOT as R
+from ROOT import TFile
+
+import argparse
+import os
+import copy
+
 def main():
     
 
@@ -16,23 +27,27 @@ def main():
 
 
     args = parser.parse_args()
-    Datacard.use_config = "conf" +  args.era
+#     Datacard.use_config = "conf" +  args.era
 
-    for u in args.var:
-        if not args.plot_only:
-            makeDatacard(args.channel, u, args.out, args.era, args.real_est, args.syst, args.debug, args.fake_est, args.prefix)
-
-        if args.out:
-            makePlot(args.channel, u, args.out, args.era, "{0}_{1}_plots".format(args.out, args.era))
-        else:
-            makePlot(args.channel, u, args.out, args.era)
+#     for u in args.var:
+#         if args.out:
+#             makePlot(args.channel, u, args.out, args.era, "{0}_{1}_plots".format(args.out, args.era))
+#         else:
+#             makePlot(args.channel, u, args.out, args.era)
         #input = raw_input("Enter any key to exit parent: ")
+        
+    indir = "/afs/cern.ch/work/m/msajatov/private/cms/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/shapes/emb_dc/cc"
+    for u in args.var:
+        makePlot(args.channel, u, indir, args.era, "{0}_{1}_plots".format(args.out, args.era))
 
 def makePlot(channel, variable, indir, era, outdir = ""):
     var = Var(variable)
 
     if "2016" in era: lumi = "35.9"
     if "2017" in era: lumi = "41.5"
+    
+    print "indir: {0}".format(indir)
+    print "outdir: {0}".format(outdir)
 
     if indir:  root_datacard = "/".join([indir, "htt_{0}.inputs-sm-Run{1}-{2}.root".format(channel, era,var.name) ])
     else:
@@ -58,6 +73,10 @@ def makePlot(channel, variable, indir, era, outdir = ""):
                   ("_ff_EMB_split",["VVL","TTL","ZL","EMB","jetFakes_W","jetFakes_TT","jetFakes_QCD","data"]),
                   ("_ff_EMB",["VVL","TTL","EMB","ZL","jetFakes","data"])
         ]
+        
+        print "indir: {0}".format(indir)
+        print "outdir: {0}".format(outdir)
+        
         for p in plots:
             histos = {}
             plot = True
@@ -69,3 +88,8 @@ def makePlot(channel, variable, indir, era, outdir = ""):
 
             if plot: pl.plot(histos, canvas="semi", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png" )
     file.Close() 
+    
+    
+if __name__ == '__main__':
+    main()
+        
