@@ -86,7 +86,7 @@ def makePlot(channel, variable, indir, era, outdir = ""):
             if not outdir:
                 outdir = "_".join([era, "plots/"])
 
-            if plot: pl.plot(histos, canvas="linear", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era )
+            if plot: pl.plot(histos, canvas="semi", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era )
     file.Close() 
     
     

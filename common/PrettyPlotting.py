@@ -109,11 +109,11 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
     textsize = 0.05
 
     if canvas == "semi":                      
-        leg = R.TLegend(0.82, 0.03, 0.98, 0.92)
-        leg.SetTextSize(0.05)
+        leg = R.TLegend(0.65, 1 - 0.5*75/55, 0.96, 1 - 0.10*75/55)
+        leg.SetTextSize(0.04*75/55)
     if canvas == "linear" or canvas == "log":
-        leg = R.TLegend(0.65, 0.5, 0.97, 0.90)
-        leg.SetTextSize(0.05)
+        leg = R.TLegend(0.65, 0.5, 0.96, 0.90)
+        leg.SetTextSize(0.04)
         
     leg.SetBorderSize(0);
     
@@ -129,8 +129,8 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
     dummy_up    = copy.deepcopy( data )
     dummy_up.Reset()
     dummy_up.SetTitle("")
-    dummy_up.GetYaxis().SetTitleSize(0.05)
-    dummy_up.GetYaxis().SetTitleOffset(1.6)
+    dummy_up.GetYaxis().SetTitleSize(0.05*75/55)
+    dummy_up.GetYaxis().SetTitleOffset(1.6*55/75)
     dummy_up.GetYaxis().SetLabelSize(20.0)
     dummy_up.GetYaxis().SetTitle( r"N_{event}" )
 
@@ -138,6 +138,7 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
     dummy_down.Reset()
     dummy_down.SetTitle("")
     dummy_down.GetYaxis().SetRangeUser( 0.1 , maxVal/ 40 )
+    dummy_down.GetYaxis().SetLabelSize(20.0)
     dummy_down.GetXaxis().SetLabelSize(0)
     dummy_down.GetXaxis().SetTitle("")
     
@@ -154,9 +155,23 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
     dummy_ratio.GetXaxis().SetTitle( descriptions.get( "xaxis", "some quantity" ) )
     
     print dummy_ratio.GetXaxis().GetLabelSize()
+    print dummy_ratio.GetXaxis().GetLabelOffset()
+    print dummy_ratio.GetYaxis().GetLabelOffset()
+    print dummy_up.GetYaxis().GetLabelOffset()
+    print dummy_down.GetYaxis().GetLabelOffset()
+    
+    dummy_ratio.GetYaxis().SetLabelOffset(0.015)
+    dummy_up.GetYaxis().SetLabelOffset(0.015)
+    dummy_down.GetYaxis().SetLabelOffset(0.007)
+    
+    print dummy_ratio.GetXaxis().GetLabelSize()
+    print dummy_ratio.GetXaxis().GetLabelOffset()
+    print dummy_ratio.GetYaxis().GetLabelOffset()
+    print dummy_up.GetYaxis().GetLabelOffset()
+    print dummy_down.GetYaxis().GetLabelOffset()
 
-    cms1 = R.TLatex( 0.15, 0.93, "CMS" )
-    cms2 = R.TLatex( 0.240, 0.93, descriptions.get( "plottype", "ProjectWork" ) )
+    cms1 = R.TLatex( 0.17, 0.93, "CMS" )
+    cms2 = R.TLatex( 0.245, 0.93, descriptions.get( "plottype", "ProjectWork" ) )
 
     chtex = {"et": r"#font[42]{#scale[0.95]{e}}#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
     ch = descriptions.get( "channel", "  " )
@@ -177,11 +192,11 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
     channel.SetNDC();
 
     if canvas == "semi":
-        cms1.SetTextSize(0.055)            
-        cms2.SetTextFont(12)
-        cms2.SetTextSize(0.055)
-        righttop.SetTextSize(0.04)
-        channel.SetTextSize(0.045)
+        cms1.SetTextSize(0.04*75/55);            
+        cms2.SetTextFont(42)
+        cms2.SetTextSize(0.04*75/55);
+        righttop.SetTextSize(0.04*75/55)
+        channel.SetTextSize(0.045*75/55)
 
         semi_info = R.TLatex( 0.83, 0.2, "log-scale")
         semi_info.SetTextAngle(90)
@@ -209,6 +224,25 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
         data.Draw("same e")
         leg.Draw()
         R.gPad.RedrawAxis()
+#         cv.cd(2)
+#         dummy_down.Draw()
+#         stack.Draw("same hist")
+#         cumul.Draw("same e2")
+#         data.Draw("same e1")
+#         for s in signal_hists:
+#             s.Draw("same hist")
+# 
+# #         semi_info.Draw()
+# 
+#         R.gPad.RedrawAxis()
+        cv.cd(3)
+        dummy_ratio.Draw()
+        ratio_error.Draw("same e2")
+        ratio.Draw("same e")
+        if signal:
+            signal_ratio.Draw("same hist")
+        R.gPad.RedrawAxis()
+        
         cv.cd(2)
         dummy_down.Draw()
         stack.Draw("same hist")
@@ -217,15 +251,8 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
         for s in signal_hists:
             s.Draw("same hist")
 
-        semi_info.Draw()
+#         semi_info.Draw()
 
-        R.gPad.RedrawAxis()
-        cv.cd(3)
-        dummy_ratio.Draw()
-        ratio_error.Draw("same e2")
-        ratio.Draw("same e")
-        if signal:
-            signal_ratio.Draw("same hist")
         R.gPad.RedrawAxis()
 
     if canvas == "linear" or canvas == "log":
@@ -262,13 +289,27 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
     cms2.Draw()
     channel.Draw()
     righttop.Draw()
-    cv.SetName(outfile.replace(".root",""))
-    cv.SaveAs( "/".join([os.getcwd(),outfile]) )
+
+    cvname = os.path.basename(outfile)
+    cvname = cvname.replace(".png", "")
+    cvname = cvname.replace(".root", "")
+
+    cv.SetName(cvname)    
+    
+    filename = outfile
+    print filename
+    cv.SaveAs(filename)
+    filename = outfile.replace(".png", ".root")
+    print filename
+    cv.SaveAs(filename)
+    filename = outfile.replace(".png", ".pdf")
+    print filename
+    cv.SaveAs(filename)
     
 
 def createRatioSemiLogCanvas(name):
 
-    cv = R.TCanvas(name, name, 10, 10, 800, 600)
+    cv = R.TCanvas(name, name, 10, 10, 650, 700)
 
     # this is the tricky part...
     # Divide with correct margins
@@ -287,22 +328,22 @@ def createRatioSemiLogCanvas(name):
     cv.cd(1)
     R.gPad.SetTopMargin(0.08)
     R.gPad.SetBottomMargin(0)
-    R.gPad.SetLeftMargin(0.08)
-    R.gPad.SetRightMargin(0.2)
+    R.gPad.SetLeftMargin(0.15)
+    R.gPad.SetRightMargin(0.03)
 
     cv.cd(2)
     R.gPad.SetTopMargin(0.05)
-    R.gPad.SetLeftMargin(0.08)
-    R.gPad.SetBottomMargin(0.05)
-    R.gPad.SetRightMargin(0.2)
+    R.gPad.SetLeftMargin(0.15)
+    R.gPad.SetBottomMargin(0.08)
+    R.gPad.SetRightMargin(0.03)
     R.gPad.SetLogy()
 
     # Set pad margins 2
     cv.cd(3)
     R.gPad.SetTopMargin(0.03)
-    R.gPad.SetBottomMargin(0.3)
-    R.gPad.SetLeftMargin(0.08)
-    R.gPad.SetRightMargin(0.2)
+    R.gPad.SetBottomMargin(0.4)
+    R.gPad.SetLeftMargin(0.15)
+    R.gPad.SetRightMargin(0.03)
     R.gPad.SetGridy()
 
     cv.cd(1)
@@ -342,18 +383,18 @@ def createRatioCanvas(name):
 
 def applyHistStyle(hist, name):
 
-    hist.GetXaxis().SetLabelFont(63)
+    hist.GetXaxis().SetLabelFont(43)
     hist.GetXaxis().SetLabelSize(14)
-    hist.GetYaxis().SetLabelFont(63)
+    hist.GetYaxis().SetLabelFont(43)
     hist.GetYaxis().SetLabelSize(14)
     hist.SetFillColor( getColor( name ) )
     hist.SetLineColor( R.kBlack )
 
 def applySignalHistStyle(hist, name, width = 1):
 
-    hist.GetXaxis().SetLabelFont(63)
+    hist.GetXaxis().SetLabelFont(43)
     hist.GetXaxis().SetLabelSize(14)
-    hist.GetYaxis().SetLabelFont(63)
+    hist.GetYaxis().SetLabelFont(43)
     hist.GetYaxis().SetLabelSize(14)
     hist.SetFillColor( 0 )
     hist.SetLineWidth( width )
