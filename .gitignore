@@ -3,4 +3,7 @@ __init__.py
 *.png
 *.root
 
+*.project
+*.pydevproject
+
 scripts/Fractions/output/
