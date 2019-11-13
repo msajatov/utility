@@ -1,7 +1,8 @@
 import os
 import argparse
 import cPickle as pickle
-
+import matplotlib as mpl
+    
 
 
 modelpath = "/eos/user/m/msajatov/data/storage/nnFractions/output/models/{0}/{1}"
@@ -13,11 +14,14 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', dest='channel', help='Decay channel' ,choices = ['mt','et','tt'], default = 'mt')
     parser.add_argument('-e', dest='era', help='Era',required = True )
-    parser.add_argument('-m', dest='mode', help='Mode',required = True )
     
     args = parser.parse_args()
     
-    makePlot(args.channel, args.era, ["nn23", "4cat_vars3"])
+    configs = ["nn23", "4cat_vars3"]
+    makePlot(args.channel, args.era, configs[0])
+    makePlot(args.channel, args.era, configs[1])
+    
+    makeCombinedPlot(args.channel, args.era, configs)
     
 #     loadHistory(args.channel, args.era, args.mode)
 
@@ -52,45 +56,86 @@ def loadHistory(channel, era, config):
     fullpath1 = os.path.join(dir, file1)
         
     hist0 = pickle.load(open(fullpath0, "rb"))
-    hist1 = pickle.load(open(fullpath0, "rb"))
+    hist1 = pickle.load(open(fullpath1, "rb"))
     
     return [hist0, hist1]
     
-def makePlot(channel, era, configs):
+def makePlot(channel, era, config, suffix=""):
+        
+    mpl.use('Agg')
+    import matplotlib.pyplot as plt
     
-    for config in configs:
-        hist = loadHistory(channel, era, config)
+    plt.figure()
         
-        hist0 = hist[0]
-        hist1 = hist[1]
+    hist = loadHistory(channel, era, config)       
     
-        loss = hist0["loss"]
-        categorical_accuracy = hist0["categorical_accuracy"]
-        
-        val_loss = hist0["val_loss"]
-        val_categorical_accuracy = hist0["val_categorical_accuracy"]
-        
-        print hist0
-        
-        print "vca:"
-        print val_categorical_accuracy
-        
-        
-        epochs = xrange(1, len(val_loss) + 1)
-        
-        import matplotlib as mpl
-    #     mpl.use('Agg')
-        import matplotlib.pyplot as plt
+#     maxlength = max(len(hist[0]["val_loss"]), len(hist[1]["val_loss"]))
     
-        print "plotting training"
-        plt.plot(epochs, loss, lw=1, label="Training loss")
-        plt.plot(epochs, val_loss, lw=1, label="Validation loss")
-        plt.xlabel("Epoch")
-        plt.ylabel("Loss")
-        plt.legend()
-        
-    #     plt.plot(epochs, loss, 'b-', val_loss, 'g-')
-        plt.show()
+    epochs = xrange(1, len(hist[0]["val_loss"]) + 1)    
+    plt.plot(epochs, hist[0]["loss"], lw=1.5, label="Training loss" + suffix)
+    plt.plot(epochs, hist[0]["val_loss"], lw=1.5, label="Validation loss" + suffix)
+    
+#     epochs = xrange(1, len(hist[1]["val_loss"]) + 1)        
+#     plt.plot(epochs, hist[1]["loss"], lw=1, label="Training loss" + suffix)
+#     plt.plot(epochs, hist[1]["val_loss"], lw=1, label="Validation loss" + suffix)
+    
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
+    
+    plt.xlabel("Epoch", fontsize=18)
+    plt.ylabel("Loss", fontsize=18)
+    plt.legend(fontsize=18)    
+    
+    fold = 0
+    
+    plotpath = "plots"
+    if not os.path.exists(plotpath):
+        os.mkdir(plotpath)
+    plt.savefig(os.path.join(plotpath, "{0}_fold_{1}_loss_{2}.png".format(channel, fold, config)), bbox_inches="tight")
+    plt.savefig(os.path.join(plotpath, "{0}_fold_{1}_loss_{2}.pdf".format(channel, fold, config)), bbox_inches="tight")
+    
+#     plt.show()
+    
+def makeCombinedPlot(channel, era, configs):
+    
+    mpl.use('Agg')
+    import matplotlib.pyplot as plt
+    
+    plt.figure()
+    
+    config = configs[0]
+    
+    hist = loadHistory(channel, era, config)       
+    
+    epochs = xrange(1, len(hist[0]["val_loss"]) + 1)    
+
+    print "plotting training"
+    plt.plot(epochs, hist[0]["loss"], lw=1, label="Training loss (tanh)")
+    plt.plot(epochs, hist[0]["val_loss"], lw=1, label="Validation loss (tanh)")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.legend()
+    
+    config = configs[1]
+    
+    hist = loadHistory(channel, era, config)       
+    
+    epochs = xrange(1, len(hist[0]["val_loss"]) + 1)    
+
+    print "plotting training"
+    plt.plot(epochs, hist[0]["loss"], lw=1, label="Training loss (selu)")
+    plt.plot(epochs, hist[0]["val_loss"], lw=1, label="Validation loss (selu)")
+    plt.legend()
+    
+    fold = 0
+    
+    plotpath = "plots"
+    if not os.path.exists(plotpath):
+        os.mkdir(plotpath)
+    plt.savefig(os.path.join(plotpath, "{0}_fold_{1}_loss_{2}.png".format(channel, fold, "combined")), bbox_inches="tight")
+    plt.savefig(os.path.join(plotpath, "{0}_fold_{1}_loss_{2}.pdf".format(channel, fold, "combined")), bbox_inches="tight")
+    
+#     plt.show()
     
     
 #     filename = "mt_trainHistoryDict_fold_1571342048"
