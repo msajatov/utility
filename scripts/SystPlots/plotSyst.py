@@ -52,8 +52,35 @@ binning = []
 
 #histo_types_dict =  { 'ggH':0 , 'qqH':0 , 'W':1, 'W_rest':1 , 'ZTT':2, 'ZJ':3 , 'ZJ_rest':3, 'ZL': 3, 'TTT': 4, 'TTJ': 4, 'TTJ_rest':4, 'VVT': 1, 'VVJ': 1, 'VVJ_rest': 1, 'QCD': 5, 'jetFakes': 6}
 #histo_labels_dict = { 0:'ggH/qqH' , 1:'Electroweak', 2:'Z#rightarrow #tau#tau', 3:'Z#rightarrow ee/#mu#mu', 4:'t#bar{t}', 5:'QCD', 6:'Misidentified #tau'}
-histo_types_dict =  { 'ggH':0 , 'qqH':0 , 'W':4, 'W_rest':4 , 'ZTT':1, 'ZJ':2 , 'ZJ_rest':2, 'ZL': 2, 'TTT': 3, 'TTJ': 3, 'TTJ_rest':3, 'VVT': 4, 'VVJ': 4, 'VVJ_rest': 4, 'QCD': 5, 'jetFakes': 6}
-histo_labels_dict = { 0:'ggH/qqH' , 4:'Electroweak', 1:'Z#rightarrow #tau#tau', 2:'Z#rightarrow ee/#mu#mu', 3:'t#bar{t}', 5:'QCD', 6:'Misidentified #tau'}
+histo_types_dict =  { 'ggH':0 , 
+                     'qqH':0 , 
+                     'W':4, 
+                     'W_rest':4 , 
+                     'ZTT':1, 
+                     'ZJ':2 , 
+                     'ZJ_rest':2, 
+                     'ZL': 2, 
+                     'TTT': 3, 
+                     'TTJ': 3, 
+                     'TTJ_rest':3, 
+                     'VVT': 4, 
+                     'VVJ': 4, 
+                     'VVJ_rest': 4, 
+                     'QCD': 5, 
+                     'jetFakes': 6,
+                     'EMB': 1,
+                     'TTL': 3,
+                     'VVL': 4}
+
+
+histo_labels_dict = { 0:'ggH/qqH' , 
+                     4:'Electroweak', 
+                     1:'Z#rightarrow #tau#tau', 
+                     2:'Z#rightarrow ee/#mu#mu', 
+                     3:'t#bar{t}', 
+                     5:'QCD', 
+                     6:'Misidentified #tau'}
+
 inv_histo_labels_dict = dict((v, k) for k, v in histo_labels_dict.items())
 
 def main(argv):
@@ -165,31 +192,27 @@ def main(argv):
 #            ('TotalSig','#phi_{700}, #sigma_{gg/bb}=0.1pb'),
             ('ggH','ggH'+mass),
             ('qqH','qqH'+mass),
-            ('ZTT','Z#rightarrow #tau#tau'), 
             ('ZL','Z#rightarrow ee/#mu#mu'), 
-            ('ZJ','Z#rightarrow ll, j#rightarrow#tau'), 
-            ('TTJ','t#bar{t}, j#rightarrow#tau'), 
             ('TTT','t#bar{t}, #tau#rightarrow#tau'),
             ('W','W'),
-            ('VVJ','VV, j#rightarrow#tau'), 
             ('VVT','VV, #tau#rightarrow#tau'),
-            ('QCD','QCD'),
             ('jetFakes','j#rightarrow#tau'),
+            ('EMB', 'Z#rightarrow #tau#tau (emb)'),
+            ('VVL', 'VVL'),
+            ('TTL', 'TTL')
             ]
     else:
         histo_dict =[ 
             ('ggH','ggH'+mass),
             ('qqH','qqH'+mass),
             ('jetFakes','j#rightarrow#tau'),
-            ('W','W'),
             ('ZJ','Z#rightarrow ll, j#rightarrow#tau'), 
-            ('TTJ','t#bar{t}, j#rightarrow#tau'), 
-            ('VVJ','VV, j#rightarrow#tau'), 
-            ('QCD','QCD'),
-            ('ZTT','Z#rightarrow ll, #tau#rightarrow#tau'), 
             ('ZL','Z#rightarrow ll, l#rightarrow#tau'), 
             ('TTT','t#bar{t}, #tau#rightarrow#tau'),
             ('VVT','VV, #tau#rightarrow#tau'),
+            ('EMB', 'Z#rightarrow #tau#tau (emb)'),
+            ('VVL', 'VVL'),
+            ('TTL', 'TTL')
             ]
 
     histo_dict = OrderedDict(histo_dict)
