@@ -4,14 +4,14 @@ from array import array
 import root_pandas as rp
 import root_numpy as rn
 from pandas import DataFrame,Series,concat
-from Tools.CutObject.CutObject import Cut
-from Tools.VarObject.VarObject import Var
+from common.Tools.CutObject.CutObject import Cut
+from common.Tools.VarObject.VarObject import Var
 from fractions_input import Era
 import copy
 import sys
 import os
 import math
-import Tools.Plotting.Plotting as pl
+import common.Plotting as pl
 from make_fractions_workspace import compileWorkspace
 
 R.gROOT.SetBatch(True)
@@ -99,19 +99,22 @@ def main(raw_args=None):
             Frac.cut = tmpcut
 
             if args.visualize_only:
-                Frac.visualize()
+                #Frac.visualize()
+                Frac.visualizeNew()
                 continue
 
             Frac.calc(outname = name )
             # Frac.calc()
             if args.plot:
                 if args.var == 'none':
-                    Frac.visualize()
+                    #Frac.visualize()
+                    Frac.visualizeNew()
                 else:
                     dir ="control_plots/{0}".format(args.era)
                     if not os.path.exists(dir):
                         os.makedirs(dir)
-                    Frac.visualize("", args.var, dir)
+                    #Frac.visualize("", args.var, dir)
+                    Frac.visualizeNew("", args.var, dir)
 
     if args.channel == "all":
         compileWorkspace( "{0}_preliminary_fractions".format( args.era  ), args.era, binned_in,
@@ -186,9 +189,11 @@ class Fractions():
         print "dummy Y bins:"
         print dummy.GetNbinsY()
         fracs = {}
+        fracs_original = {}        
 
         for f in ["total"] + self.getOtherParts():
             fracs[f] = self.cpHist(dummy, f)
+            fracs_original[f] = self.cpHist(dummy, f)
  
         for i in xrange(1, dummy.GetNbinsX() + 1 ):
             for j in xrange(1, dummy.GetNbinsY() + 1 ):
@@ -209,17 +214,22 @@ class Fractions():
                     if total == 0: continue
                     if f == "total":
                         fracs[f].SetBinContent( i,j, total )
+                        fracs_original[f].SetBinContent( i,j, total )
                     else:
                         fracs[f].SetBinContent( i,j, part_other[f] / total )
+                        fracs_original[f].SetBinContent( i,j, part_other[f] )
 
         comp = {}
+        comp_original = {}
         for c,part in self.composition.items() :
 
             for i,p in enumerate( part ):
                 if i == 0:
                     comp[c] = self.cpHist( fracs[p], c, reset = False)
+                    comp_original[c] = self.cpHist( fracs_original[p], c, reset = False)
                 else:
                     comp[c].Add( fracs[p] )
+                    comp_original[c].Add( fracs_original[p] )
 
         if not os.path.exists(self.era + "_preliminary_fractions"):
             os.mkdir(self.era + "_preliminary_fractions")
@@ -227,6 +237,8 @@ class Fractions():
         
         file.mkdir("all")
         file.mkdir("fracs")
+        file.mkdir("all_original")
+        file.mkdir("fracs_original")
         file.cd()
         dummy.Write()
 
@@ -236,7 +248,15 @@ class Fractions():
 
         file.cd("fracs")
         for c in comp:
-            comp[c].Write()      
+            comp[c].Write()  
+
+        file.cd("all_original")
+        for f in fracs_original:
+            fracs_original[f].Write()
+
+        file.cd("fracs_original")
+        for c in comp_original:
+            comp_original[c].Write()    
 
         file.Close()
 
@@ -339,6 +359,52 @@ class Fractions():
             cv.SaveAs(outfile.replace(".png", ".root"))
 
         file.Close()
+
+    def visualizeNew(self, frac_file = "", outname = "", outdir=""):
+
+        # contr = ["TT","W","QCD","real"]
+        contr = ["tt", "w", "qcd", "real"]
+        # contr = ["tt", "w", "qcd"]
+        # if self.channel == "tt":
+        #     contr.append("DY")
+
+        # contr = self.composition["w"] + self.composition["tt"] + self.composition["qcd"] + self.composition["real"]
+
+        # file = R.TFile( self.era + "_preliminary_fractions/{0}_aiso2_fractions.root".format( self.channel ), "read" )
+        file = R.TFile(self.era + "_preliminary_fractions/{0}_aiso2_incl.root".format(self.channel), "read")
+
+
+        Hists = { c:file.Get("fracs_original/"+c) for c in contr   }
+
+        for i in xrange(1, Hists[ contr[0] ].GetNbinsY() + 1 ):
+
+            hists = { c: Hists[c].ProjectionX(c +"x",i,i) for c in Hists }
+            dummy = self.cpHist(hists[ contr[0] ], "Fractions")
+            stack = R.THStack("stack", "")
+            leg = R.TLegend(0.82, 0.5, 0.98, 0.9)
+            for c in contr: 
+                pl.applyHistStyle( hists[c], c )
+                stack.Add( hists[c] )
+
+            for c in contr[::-1]:
+                leg.AddEntry( hists[c], c )
+
+            cv = R.TCanvas(str(i)+"cv", str(i)+"cv", 10, 10, 700, 600)
+            R.gPad.SetRightMargin(0.2)
+            dummy.GetYaxis().SetRangeUser(0,stack.GetMaximum())
+            dummy.Draw()
+            stack.Draw("same")
+            leg.Draw()
+            R.gPad.RedrawAxis()
+
+            outfile = os.path.join(outdir, str(i) + '_' +outname+ '_' +self.channel + '_fractions_original.png')
+            cv.Print(outfile)
+
+            cv.SaveAs(outfile.replace(".png", ".root"))
+
+        file.Close()
+
+        self.visualize(frac_file, outname, outdir)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
-from Tools.CutObject.CutObject import Cut
-from Tools.Weights.Weights import Weight
+from common.Tools.CutObject.CutObject import Cut
+from common.Tools.Weights.Weights import Weight
 
 class Era:
 
@@ -122,7 +122,7 @@ class Era:
             self.dataSample = path + "NOMINAL_ntuple_Data"+ext
 
         if era == "2017":
-            Cut.cutfile = "/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/HephyHiggs/Tools/Datacard/conf2017/cuts.json"
+            Cut.cutfile = "/afs/cern.ch/work/m/msajatov/private/CMSSW_9_4_0/src/dev/utility/common/Tools/CutObject/conf/cuts_2017.json"
             self.lumi = 41.529
             self.weights = "weight*zPtReweightWeight*topPtReweightWeightRun1"
             
@@ -135,7 +135,7 @@ class Era:
             
             self.add_weights = self.weights.replace(" ","").split("*")
 
-            path = "/afs/hephy.at/data/higgs01/v10/{0}-{1}_ntuple_".format( channel, shift)
+            path = "/eos/user/m/msajatov/data/ntuples_scp/v10/{0}-{1}_ntuple_".format( channel, shift)
             self.mcSamples = [
                 (path + "WJets.root","W",""),
                 (path + "DY.root","ZTT",Cut("-GENTAU-") ),
