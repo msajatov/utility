@@ -22,10 +22,10 @@ tdrstyle.setTDRStyle()
 #change the CMS_lumi variables (see CMS_lumi.py)
 #CMS_lumi.lumi_13TeV = "12.9 fb^{-1}"
 #CMS_lumi.lumi_13TeV = "27.9 fb^{-1}"
-CMS_lumi.lumi_13TeV = "35.9 fb^{-1}"
+CMS_lumi.lumi_13TeV = "41.5 fb^{-1}"
 CMS_lumi.writeExtraText = 1
-CMS_lumi.extraText = "Preliminary"
-CMS_lumi.lumi_sqrtS = CMS_lumi.lumi_13TeV+" (13 TeV)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+CMS_lumi.extraText = "ProjectWork"
+CMS_lumi.lumi_sqrtS = CMS_lumi.lumi_13TeV+" (2017, 13 TeV)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
 #CMS_lumi.lumiTextSize=0.687500
 CMS_lumi.lumiTextSize*=0.055/0.045
 #CMS_lumi.cmsTextSize*=2
@@ -168,24 +168,58 @@ def main(argv):
     print 'Var: ', pl_vars
 
     var_dict = {
-        'm_vis-2D':'2D',
-        'm_vis':'m_{vis} [GeV]',
-        'm_sv-2D':'2D',
-        'm_sv':'m_{sv} [GeV]',
-        'pt_sv':'p_{T,sv} [GeV]',
-        'met':'E^{miss}_{T} [GeV]',
-        'pt_1':'p_{T}^{1} [GeV]',
-        'pt_2':'p_{T}^{2} [GeV]',
-        'eta_1':'#eta^{1} [GeV]',
-        'eta_2':'#eta^{2} [GeV]',
-        'mt_1':'m_{T}^{1} [GeV]',
-        'mt_2':'m_{T}^{2} [GeV]',
-        'mt_3':'m_{T}^{3} [GeV]',
-        'mttot':'m_{T,tot} [GeV]',
-        'Hpt':'p_{T}^{H} [GeV]',
-        'mjj':'m_{jj} [GeV]',
-        'ML':'ML score',
-        }
+#         'm_vis-2D':'2D',
+#         'm_vis':'m_{vis} [GeV]',
+#         'm_sv-2D':'2D',
+#         'm_sv':'m_{sv} [GeV]',
+#         'pt_sv':'p_{T,sv} [GeV]',
+#         'met':'E^{miss}_{T} [GeV]',
+#         'pt_1':'p_{T}^{1} [GeV]',
+#         'pt_2':'p_{T}^{2} [GeV]',
+#         'eta_1':'#eta^{1} [GeV]',
+#         'eta_2':'#eta^{2} [GeV]',
+#         'mt_1':'m_{T}^{1} [GeV]',
+#         'mt_2':'m_{T}^{2} [GeV]',
+#         'mt_3':'m_{T}^{3} [GeV]',
+#         'mttot':'m_{T,tot} [GeV]',
+#         'Hpt':'p_{T}^{H} [GeV]',
+#         'mjj':'m_{jj} [GeV]',
+#         'ML':'ML score',
+        
+        "m_sv":           r"m_{sv} [GeV]",
+        "m_vis":          r"m_{vis} [GeV]" ,
+        "eta_1":          r"#eta_{1}" ,
+        "eta_2":          r"#eta_{2}" ,
+        "iso_1":          r"iso_{1}" ,
+        "iso_2":          r"iso_{2}" ,
+        "pt_1":           r"p_{T,1} [GeV]" ,
+        "pt_2":           r"p_{T,2} [GeV]" ,
+        "jpt_1":          r"p_{T,1}^{jet} [GeV]" ,
+        "jpt_2":          r"p_{T,2}^{jet} [GeV]" ,
+        "jm_1":           r"m_{1}^{jet}" ,
+        "jm_2":           r"m_{2}^{jet}" ,
+        "jphi_1":         r"#phi_{1}^{jet}" ,
+        "jphi_2":         r"#phi_{2}^{jet}" ,
+        "jdeta":          r"jdeta" ,
+        "dijetpt":        r"p_{T}^{j1,j2} [GeV]" ,
+        "bpt_1":          r"p_{T,1}^{b-jet} [GeV]" ,
+        "bpt_2":          r"p_{T,2}^{b-jet} [GeV]" ,
+        "bcsv_1":         r"b_{csv}^{1}" ,
+        "bcsv_2":         r"b_{csv}^{2}" ,
+        "beta_1":         r"#eta_{1}^{b-jet}" ,
+        "beta_2":         r"#eta_{2}^{b-jet}" ,
+        "decayMode_2":    r"DM tau" ,
+        "njets":          r"N_{jet}" , 
+        "nbtag":          r"N_{b-tag}" , 
+        "mt_1":           r"m_{T,1} [GeV]" ,
+        "mt_2":           r"m_{T,2} [GeV]" , 
+        "pt_tt":          r"p_{T}^{#tau#tau} [GeV]" ,
+        "pt_vis":         r"p_{T}^{#tau#tau} [GeV]" ,
+        "mjj":            r"m_{jj} [GeV]" ,
+        "npv":            r"N_{PV}" , 
+        "met":            r"E_{T}^{miss} [GeV]" ,
+        "dzeta":          r"D_{#zeta}"                                
+        }                
 
     if official_plots:
         histo_dict =[ 
