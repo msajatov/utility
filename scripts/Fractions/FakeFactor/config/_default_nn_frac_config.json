@@ -1,0 +1,18 @@
+{
+    "prediction_mode": "otf_default",
+    "cut":
+    {
+        "AR_inclusive": "-TRIG- & -VETO- & -ANTIISO- & -OS- & -MT- & predicted_class == 0 & htxs_reco_ggf==111"
+    },
+    "model":
+    {
+        "path_prefix": "/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output",
+        "model_path": "models/4cat_bias_int",
+        "scaler_path": "models/4cat_bias_int",
+        "scaler": "standard"
+    }
+}
+
+
+
+
