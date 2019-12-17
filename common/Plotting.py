@@ -39,7 +39,7 @@ def main():
     plot(histos,canvas = "linear")
 
 
-def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions={}, optimizeTicks=True):
+def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions={}, optimizeTicks=True, legend="outer"):
 
     histos = copy.deepcopy(histograms)
 
@@ -62,15 +62,20 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     height=600   
         
     topMargin=0.08
-    bottomMargin=0.12
-    leftMargin=0.15
-    rightMargin=0.10
+    bottomMargin=0.2
+    leftMargin=0.22
+    rightMargin=0.2
+
+    topTextSize = 0.035
+    cms1TextSize = topTextSize
+    cms2TextSize = topTextSize * 0.875
+    channelTextSize = topTextSize
+    rightTopTextSize = topTextSize * 0.875
+
+    textSize = 0.04
         
-# x1, y1, x2, y2
-#     leg = R.TLegend(leftMargin + 0.79, 0.20, leftMargin + 0.90, 0.92)
     leg = R.TLegend(1 - rightMargin + 0.02, 0.20, 1 - rightMargin + 0.12, 1 - topMargin)
-    leg.SetTextSize(0.04)
-#     leg.SetBorderSize(0.06)
+    leg.SetTextSize(textSize)
     leg.SetBorderSize(0)
 
     for h in reversed(histos):
@@ -84,16 +89,15 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     dummy_up.GetYaxis().SetNdivisions(10, 4, 0, optimizeTicks)
     dummy_up.GetYaxis().SetTickSize(0.02)
     dummy_up.GetYaxis().SetTitle(descriptions.get("yaxis", "some quantity"))
-#     dummy_up.GetYaxis().SetTitleOffset(1)
-    dummy_up.GetYaxis().SetTitleSize(0.04)
-    dummy_up.GetYaxis().SetLabelSize(0.04)
+    dummy_up.GetYaxis().SetTitleSize(textSize)
+    dummy_up.GetYaxis().SetLabelSize(textSize)
     
     dummy_up.GetXaxis().SetTickSize(0.02)
     dummy_up.GetXaxis().SetTitleSize(0.03)
     dummy_up.GetXaxis().SetTitle(descriptions.get("xaxis", "some quantity"))
     dummy_up.GetXaxis().SetTitleOffset(1.15)
-    dummy_up.GetXaxis().SetTitleSize(0.04)
-    dummy_up.GetXaxis().SetLabelSize(0.04)
+    dummy_up.GetXaxis().SetTitleSize(textSize)
+    dummy_up.GetXaxis().SetLabelSize(textSize)
 
     dummy_down = copy.deepcopy(cumul)
     dummy_down.Reset()
@@ -102,25 +106,25 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     dummy_down.GetXaxis().SetLabelSize(0)
     dummy_down.GetXaxis().SetTitle("")
 
-    cms1 = R.TLatex(leftMargin, 1 - topMargin + 0.01 * 600 / height, "CMS")
-    cms2 = R.TLatex(leftMargin + 0.08, 1 - topMargin + 0.01 * 600 / height, descriptions.get("plottype", "ProjectWork"))
+    leftCornerPos = [leftMargin, 1 - topMargin + 0.01 * 600 / height]
+    rightCornerPos = [1 - rightMargin - 0.24 * 700 / width, 1 - topMargin + 0.012 * 600 / height]
+    midTopPos = [1 - rightMargin - 0.29 * 700 / width, 1 - topMargin + 0.012 * 600 / height]
+
+    cms1 = R.TLatex(leftCornerPos[0], leftCornerPos[1], "CMS")
+    cms2 = R.TLatex(leftCornerPos[0] + 0.07, leftCornerPos[1], descriptions.get("plottype", "Project Work"))
     
     
     chtex = {"et": r"#font[42]{#scale[0.95]{e}}#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
     ch = descriptions.get("channel", "  ")
     ch = chtex.get(ch, ch)
-#     channel = R.TLatex(0.75, 0.932, ch)
-#     channel = R.TLatex( leftMargin + 0.51, 0.932, ch )
-    channel = R.TLatex(1 - rightMargin - 0.265 * 700 / width, 1 - topMargin + 0.012 * 600 / height, ch )
-    
-#     rightOffset = 227.5
+    channel = R.TLatex(midTopPos[0], midTopPos[1], ch )
 
     lumi = descriptions.get("lumi", "xx.y")
     som = descriptions.get("CoM", "13")
+    era = descriptions.get("era", "2017")
     l = lumi + r" fb^{-1}"
-    r = " ({0} TeV)".format(som)
-#     righttop = R.TLatex(leftMargin + 0.565, 0.932, l + r)
-    righttop = R.TLatex(1 - rightMargin - 0.21 * 700 / width, 1 - topMargin + 0.012 * 600 / height, l + r)
+    r = " ({0}, {1} TeV)".format(era, som)
+    righttop = R.TLatex(rightCornerPos[0], rightCornerPos[1], l + r)
 
     cms1.SetNDC()
     cms2.SetNDC()
@@ -133,11 +137,12 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
 
     cv.cd(1)
     
-    cms1.SetTextSize(0.04);            
-    cms2.SetTextFont(42)
-    cms2.SetTextSize(0.04);
-    righttop.SetTextSize(0.035);
-    channel.SetTextSize(0.045)
+    cms1.SetTextSize(cms1TextSize)           
+    cms2.SetTextFont(52)
+    cms2.SetTextSize(cms2TextSize)
+    righttop.SetTextSize(rightTopTextSize)
+    righttop.SetTextFont(42)
+    channel.SetTextSize(channelTextSize)
 
     dummy_up.Draw()
     stack.Draw("same hist ")
