@@ -76,13 +76,13 @@ def main(raw_args=None):
         if args.var == 'none':
             
             # ANALYSIS
-            # binned_in = ["pt_2","njets"]; binning =  [ (9, array("d",[20,30,35,40,45,50,80,90,100,200] ) ) , (3, array("d",[-0.5,0.5,1.5,15]) )  ]
-            # binned_in = ["m_vis","njets"]; binning = [ (30,0,300 ) , (3, array("d",[-0.5,0.5,1.5,15]) )  ]
+            #binned_in = ["pt_2","njets"]; binning =  [ (9, array("d",[20,30,35,40,45,50,80,90,100,200] ) ) , (3, array("d",[-0.5,0.5,1.5,15]) )  ]
+            #binned_in = ["m_vis","njets"]; binning = [ (30,0,300 ) , (3, array("d",[-0.5,0.5,1.5,15]) )  ]
             # ---------------------------------------------------
             # binned_in = ["predicted_prob","eta_1"]; binning = [ (6,array("d",[0.125, 0.3, 0.4, 0.5, 0.6, 0.7, 1.0])) , (1, array("d",[-5., 5.]) )  ]
             # binned_in = ["predicted_prob","njets"]; binning = [ (6,array("d",[0.125, 0.3, 0.4, 0.5, 0.6, 0.7, 1.0])) , (3, array("d",[-0.5,1.5,2.5,15]) )  ]
             # binned_in = ["m_vis","njets"];          binning = [ (11,array("d",[0,50,80,100,110,120,130,150,170,200,250,1000])) , (3, array("d",[-0.5,1.5,2.5,15]) )  ]
-            binned_in = ["m_vis", "njets"];
+            binned_in = ["m_vis", "njets"]
             binning = [(30, 0, 300),
                        (1, array("d", [-0.5, 15]))]
         else:
@@ -365,49 +365,54 @@ class Fractions():
         contr = ["tt", "w", "qcd", "real"]
         input_frac_dir = "fracs_original/"
         plot_name = "frac"
-        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in)
+        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in, legend="inner")
 
         contr = ["tt", "w", "qcd", "real"]
         input_frac_dir = "fracs/"
         plot_name = "frac_norm"
-        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in)
+        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in, legend="outer")
         
-        contr = self.composition["w"] + self.composition["tt"] + self.composition["qcd"] + self.composition["real"]
-        input_frac_dir = "all_original/"
-        plot_name = "all"
-        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in)
+        # contr = self.composition["w"] + self.composition["tt"] + self.composition["qcd"] + self.composition["real"]
+        # input_frac_dir = "all_original/"
+        # plot_name = "all"
+        # self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in, legend="inner")
         
-        contr = self.composition["w"] + self.composition["tt"] + self.composition["qcd"] + self.composition["real"]
-        input_frac_dir = "all/"
-        plot_name = "all_norm"
-        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in)
+        # contr = self.composition["w"] + self.composition["tt"] + self.composition["qcd"] + self.composition["real"]
+        # input_frac_dir = "all/"
+        # plot_name = "all_norm"
+        # self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in)
 
 
-    def make_plot(self, contr=[], outname = "", outdir="", input_frac_dir="", binned_in=[]):
+    def make_plot(self, contr=[], outname = "", outdir="", input_frac_dir="", binned_in=[], legend="outer"):
 
-        file = R.TFile(self.era + "_preliminary_fractions/{0}_aiso2_incl.root".format(self.channel), "read")
-        
-        Hists = { c:file.Get(input_frac_dir+c) for c in contr   }
+        files = ["aiso2"]
+        if self.channel == "tt":
+            files = files + ["aiso1"]
 
-        if binned_in:
-            var = Var(binned_in[0])
+        for f in files:
+            file = R.TFile(self.era + "_preliminary_fractions/{0}_{1}_incl.root".format(self.channel, f), "read")
+            
+            Hists = { c:file.Get(input_frac_dir+c) for c in contr   }
 
-        for i in xrange(1, Hists[ contr[0] ].GetNbinsY() + 1 ):
+            if binned_in:
+                var = Var(binned_in[0])
 
-            hists = { c: Hists[c].ProjectionX(c +"x",i,i) for c in Hists }
+            for i in xrange(1, Hists[ contr[0] ].GetNbinsY() + 1 ):
 
-            outfile = os.path.join(outdir, str(i) + '_' + outname + '_' + self.channel + '_fractions.png')
+                hists = { c: Hists[c].ProjectionX(c +"x",i,i) for c in Hists }
 
-            descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.channel, "CoM": "13",
-                        "lumi": "41.5", "title": "", "yaxis": "Background Composition"}
+                outfile = os.path.join(outdir, str(i) + '_' + outname + '_' + self.channel + '_' + f + '_fractions.png')
 
-            sorted = sort_by_target_names(hists)
-            print sorted
+                descriptions = {"plottype": "Project Work", "xaxis": var.tex, "channel": self.channel, "CoM": "13",
+                            "lumi": "41.5", "era": self.era, "title": "", "yaxis": "Events"}
 
-            pl.simple_plot(sorted, canvas="linear", signal=[],
-                       descriptions=descriptions, outfile=outfile, optimizeTicks=True)
+                sorted = sort_by_target_names(hists)
+                print sorted
 
-        file.Close()
+                pl.simple_plot(sorted, canvas="linear", signal=[],
+                        descriptions=descriptions, outfile=outfile, optimizeTicks=True, legend=legend)
+
+            file.Close()
 
 def get_index_for_fraction_name(listitem):
     name = listitem[0]
