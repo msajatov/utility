@@ -78,37 +78,30 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     width=600 
     height=600   
         
-    topMargin=0.08
-    bottomMargin=0.2
-    leftMargin=0.22
+    topMargin=0.06
+    bottomMargin=0.14
+    leftMargin=0.18
     rightMargin=0.05       
 
     legWidth = 150.0
     relLegWidth = legWidth / width
         
-    leg = R.TLegend(1 - relLegWidth - 0.05, 0.65, 1 - 0.08, 1 - topMargin - 0.07)  
+    leg = R.TLegend(1 - relLegWidth - 0.05, 0.65, 1 - 0.05, 1 - topMargin - 0.05)  
 
     if legend == "outer":
         originalWidth = width
-        legWidth = 150.0
+        legWidth = 75.0
         width = int(originalWidth + legWidth)
-        #ratio = width / originalWidth
 
-        #relLegWidth = legWidth / width
+        relLegWidth = legWidth / width
             
-        topMargin=0.08
-        bottomMargin=0.2
         leftMargin=leftMargin * originalWidth / width
-        #rightMargin = rightMargin / ratio + relLegWidth
-        rightMargin = (rightMargin * originalWidth + legWidth) / width
-
-        
+        rightMargin = (rightMargin * originalWidth + legWidth) / width        
             
-        leg = R.TLegend(1 - rightMargin + 0.02, 0.70, 1 - 0.02, 1 - topMargin)    
+        leg = R.TLegend(1 - rightMargin + 0.02, 0.70, 1 - rightMargin + 0.02 + relLegWidth * 2, 1 - topMargin)    
 
     for h in reversed(histos):
         leg.AddEntry(h[1], " " + getFancyName(h[0]), "f")
-
 
     cv = createSimpleCanvas("cv", width, height, topMargin, bottomMargin, leftMargin, rightMargin)
 
@@ -134,11 +127,11 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     dummy_down.GetXaxis().SetTitle("")
 
     leftCornerPos = [leftMargin, 1 - topMargin + 0.01 * 600 / height]
-    rightCornerPos = [1 - rightMargin - 0.27 * 700 / width, 1 - topMargin + 0.012 * 600 / height]
-    midTopPos = [1 - rightMargin - 0.32 * 700 / width, 1 - topMargin + 0.012 * 600 / height]
+    rightCornerPos = [1 - rightMargin - 0.315 * 600 / width, 1 - topMargin + 0.012 * 600 / height]
+    midTopPos = [1 - rightMargin - 0.375 * 600 / width, 1 - topMargin + 0.012 * 600 / height]
 
     cms1 = R.TLatex(leftCornerPos[0], leftCornerPos[1], "CMS")
-    cms2 = R.TLatex(leftCornerPos[0] + 0.075 * 700 / width, leftCornerPos[1], descriptions.get("plottype", "Project Work"))
+    cms2 = R.TLatex(leftCornerPos[0] + 0.09 * 600 / width, leftCornerPos[1], descriptions.get("plottype", "Project Work"))
     
     
     chtex = {"et": r"#font[42]{#scale[0.95]{e}}#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
