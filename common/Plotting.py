@@ -58,15 +58,22 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
         stack.Add(copy.deepcopy(h[1]))
         cumul.Add(h[1])
             
-    topTextSize = 0.035
+    # topTextSize = 0.035
+    # cms1TextSize = topTextSize
+    # cms2TextSize = topTextSize * 0.875
+    # channelTextSize = topTextSize
+    # rightTopTextSize = topTextSize * 0.875
+    
+    # legendTextSize = 0.04
+
+
+    topTextSize = 22
     cms1TextSize = topTextSize
     cms2TextSize = topTextSize * 0.875
     channelTextSize = topTextSize
     rightTopTextSize = topTextSize * 0.875
-
-    tickLabelSize = 0.04
-    axisLabelSize = 0.05
-    legendTextSize = 0.04
+    
+    legendTextSize = 22
     
     width=600 
     height=600   
@@ -83,25 +90,27 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
 
     if legend == "outer":
         originalWidth = width
-        legWidth = 100
+        legWidth = 150.0
         width = int(originalWidth + legWidth)
-        height = 600   
+        #ratio = width / originalWidth
+
+        #relLegWidth = legWidth / width
             
         topMargin=0.08
         bottomMargin=0.2
-        leftMargin=0.22 * originalWidth / width
-        rightMargin = 1 - width / originalWidth
+        leftMargin=leftMargin * originalWidth / width
+        #rightMargin = rightMargin / ratio + relLegWidth
+        rightMargin = (rightMargin * originalWidth + legWidth) / width
+
+        
             
         leg = R.TLegend(1 - rightMargin + 0.02, 0.70, 1 - 0.02, 1 - topMargin)    
 
     for h in reversed(histos):
         leg.AddEntry(h[1], " " + getFancyName(h[0]), "f")
 
-    leg.SetTextSize(legendTextSize)
-    leg.SetBorderSize(0)
-    leg.SetFillColor(10)
-    leg.SetLineWidth(0)
-    leg.SetFillStyle(0)
+
+    cv = createSimpleCanvas("cv", width, height, topMargin, bottomMargin, leftMargin, rightMargin)
 
     maxVal = stack.GetMaximum()
     dummy_up = copy.deepcopy(cumul)
@@ -110,16 +119,12 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     dummy_up.GetYaxis().SetRangeUser(0.5, 1.5)
     dummy_up.GetYaxis().SetNdivisions(10, 4, 0, optimizeTicks)
     dummy_up.GetYaxis().SetTickSize(0.02)
-    dummy_up.GetYaxis().SetTitle(descriptions.get("yaxis", "some quantity"))
-    dummy_up.GetYaxis().SetTitleSize(axisLabelSize)
-    dummy_up.GetYaxis().SetLabelSize(tickLabelSize)
+    dummy_up.GetYaxis().SetTitle(descriptions.get("yaxis", "some quantity"))    
     
     dummy_up.GetXaxis().SetTickSize(0.02)
     dummy_up.GetXaxis().SetTitleSize(0.03)
     dummy_up.GetXaxis().SetTitle(descriptions.get("xaxis", "some quantity"))
-    dummy_up.GetXaxis().SetTitleOffset(1.15)
-    dummy_up.GetXaxis().SetTitleSize(axisLabelSize)
-    dummy_up.GetXaxis().SetLabelSize(tickLabelSize)
+    dummy_up.GetXaxis().SetTitleOffset(1.15)    
 
     dummy_down = copy.deepcopy(cumul)
     dummy_down.Reset()
@@ -129,11 +134,11 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     dummy_down.GetXaxis().SetTitle("")
 
     leftCornerPos = [leftMargin, 1 - topMargin + 0.01 * 600 / height]
-    rightCornerPos = [1 - rightMargin - 0.24 * 700 / width, 1 - topMargin + 0.012 * 600 / height]
-    midTopPos = [1 - rightMargin - 0.29 * 700 / width, 1 - topMargin + 0.012 * 600 / height]
+    rightCornerPos = [1 - rightMargin - 0.27 * 700 / width, 1 - topMargin + 0.012 * 600 / height]
+    midTopPos = [1 - rightMargin - 0.32 * 700 / width, 1 - topMargin + 0.012 * 600 / height]
 
     cms1 = R.TLatex(leftCornerPos[0], leftCornerPos[1], "CMS")
-    cms2 = R.TLatex(leftCornerPos[0] + 0.09, leftCornerPos[1], descriptions.get("plottype", "Project Work"))
+    cms2 = R.TLatex(leftCornerPos[0] + 0.075 * 700 / width, leftCornerPos[1], descriptions.get("plottype", "Project Work"))
     
     
     chtex = {"et": r"#font[42]{#scale[0.95]{e}}#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
@@ -155,20 +160,36 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
 
     dummy_up.GetYaxis().SetRangeUser(0, maxVal)
 
-    cv = createSimpleCanvas("cv", width, height, topMargin, bottomMargin, leftMargin, rightMargin)
-
     cv.cd(1)
+
+    tickLabelSize = 24/(R.gPad.GetWh()*R.gPad.GetAbsHNDC())
+    axisLabelSize = 28/(R.gPad.GetWh()*R.gPad.GetAbsHNDC())
+
+    dummy_up.GetYaxis().SetTitleSize(axisLabelSize)
+    dummy_up.GetYaxis().SetLabelSize(tickLabelSize)
+    dummy_up.GetXaxis().SetTitleSize(axisLabelSize)
+    dummy_up.GetXaxis().SetLabelSize(tickLabelSize)
     
-    cms1.SetTextSize(cms1TextSize)           
-    cms2.SetTextFont(52)
+    cms1.SetTextSize(cms1TextSize)    
+    cms1.SetTextFont(63)       
+    cms2.SetTextFont(53)
     cms2.SetTextSize(cms2TextSize)
     righttop.SetTextSize(rightTopTextSize)
-    righttop.SetTextFont(42)
+    righttop.SetTextFont(43)
     channel.SetTextSize(channelTextSize)
+    channel.SetTextFont(43)
+
+    leg.SetTextSize(legendTextSize)
+    leg.SetTextFont(43)     
+    leg.SetBorderSize(0)
+    leg.SetFillColor(10)
+    leg.SetLineWidth(0)
+    leg.SetFillStyle(0)
 
     dummy_up.Draw()
     stack.Draw("same hist ")
-    leg.Draw()
+    if legend != "none":
+        leg.Draw()
     R.gPad.RedrawAxis()
 
     if not outfile:
