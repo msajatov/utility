@@ -58,28 +58,50 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
         stack.Add(copy.deepcopy(h[1]))
         cumul.Add(h[1])
             
-    width=700 
-    height=600   
-        
-    topMargin=0.08
-    bottomMargin=0.2
-    leftMargin=0.22
-    rightMargin=0.2
-
     topTextSize = 0.035
     cms1TextSize = topTextSize
     cms2TextSize = topTextSize * 0.875
     channelTextSize = topTextSize
     rightTopTextSize = topTextSize * 0.875
 
-    textSize = 0.04
+    tickLabelSize = 0.04
+    axisLabelSize = 0.05
+    legendTextSize = 0.04
+    
+    width=600 
+    height=600   
         
-    leg = R.TLegend(1 - rightMargin + 0.02, 0.20, 1 - rightMargin + 0.12, 1 - topMargin)
-    leg.SetTextSize(textSize)
-    leg.SetBorderSize(0)
+    topMargin=0.08
+    bottomMargin=0.2
+    leftMargin=0.22
+    rightMargin=0.05       
+
+    legWidth = 150.0
+    relLegWidth = legWidth / width
+        
+    leg = R.TLegend(1 - relLegWidth - 0.05, 0.65, 1 - 0.08, 1 - topMargin - 0.07)  
+
+    if legend == "outer":
+        originalWidth = width
+        legWidth = 100
+        width = int(originalWidth + legWidth)
+        height = 600   
+            
+        topMargin=0.08
+        bottomMargin=0.2
+        leftMargin=0.22 * originalWidth / width
+        rightMargin = 1 - width / originalWidth
+            
+        leg = R.TLegend(1 - rightMargin + 0.02, 0.70, 1 - 0.02, 1 - topMargin)    
 
     for h in reversed(histos):
-        leg.AddEntry(h[1], getFancyName(h[0]))
+        leg.AddEntry(h[1], " " + getFancyName(h[0]), "f")
+
+    leg.SetTextSize(legendTextSize)
+    leg.SetBorderSize(0)
+    leg.SetFillColor(10)
+    leg.SetLineWidth(0)
+    leg.SetFillStyle(0)
 
     maxVal = stack.GetMaximum()
     dummy_up = copy.deepcopy(cumul)
@@ -89,15 +111,15 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     dummy_up.GetYaxis().SetNdivisions(10, 4, 0, optimizeTicks)
     dummy_up.GetYaxis().SetTickSize(0.02)
     dummy_up.GetYaxis().SetTitle(descriptions.get("yaxis", "some quantity"))
-    dummy_up.GetYaxis().SetTitleSize(textSize)
-    dummy_up.GetYaxis().SetLabelSize(textSize)
+    dummy_up.GetYaxis().SetTitleSize(axisLabelSize)
+    dummy_up.GetYaxis().SetLabelSize(tickLabelSize)
     
     dummy_up.GetXaxis().SetTickSize(0.02)
     dummy_up.GetXaxis().SetTitleSize(0.03)
     dummy_up.GetXaxis().SetTitle(descriptions.get("xaxis", "some quantity"))
     dummy_up.GetXaxis().SetTitleOffset(1.15)
-    dummy_up.GetXaxis().SetTitleSize(textSize)
-    dummy_up.GetXaxis().SetLabelSize(textSize)
+    dummy_up.GetXaxis().SetTitleSize(axisLabelSize)
+    dummy_up.GetXaxis().SetLabelSize(tickLabelSize)
 
     dummy_down = copy.deepcopy(cumul)
     dummy_down.Reset()
@@ -111,7 +133,7 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     midTopPos = [1 - rightMargin - 0.29 * 700 / width, 1 - topMargin + 0.012 * 600 / height]
 
     cms1 = R.TLatex(leftCornerPos[0], leftCornerPos[1], "CMS")
-    cms2 = R.TLatex(leftCornerPos[0] + 0.07, leftCornerPos[1], descriptions.get("plottype", "Project Work"))
+    cms2 = R.TLatex(leftCornerPos[0] + 0.09, leftCornerPos[1], descriptions.get("plottype", "Project Work"))
     
     
     chtex = {"et": r"#font[42]{#scale[0.95]{e}}#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
@@ -493,6 +515,9 @@ def applyHistStyle(hist, name):
     hist.GetYaxis().SetLabelSize(14)
     hist.SetFillColor( getColor( name ) )
     hist.SetLineColor( R.kBlack )
+    #hist.SetLineColor(1)
+    #hist.SetLineStyle(0)
+    #hist.SetFillStyle(1001)
 
 def applySignalHistStyle(hist, name, width = 1):
     # print "Applying signal hist style:"
