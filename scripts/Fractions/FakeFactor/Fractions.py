@@ -100,7 +100,7 @@ def main(raw_args=None):
 
             if args.visualize_only:
                 #Frac.visualize()
-                Frac.visualizeNew()
+                Frac.visualizeNew(binned_in = binned_in)
                 continue
 
             Frac.calc(outname = name )
@@ -108,13 +108,13 @@ def main(raw_args=None):
             if args.plot:
                 if args.var == 'none':
                     #Frac.visualize()
-                    Frac.visualizeNew()
+                    Frac.visualizeNew(binned_in = binned_in)
                 else:
                     dir ="control_plots/{0}".format(args.era)
                     if not os.path.exists(dir):
                         os.makedirs(dir)
                     #Frac.visualize("", args.var, dir)
-                    Frac.visualizeNew("", args.var, dir)
+                    Frac.visualizeNew("", args.var, dir, binned_in = binned_in)
 
     if args.channel == "all":
         compileWorkspace( "{0}_preliminary_fractions".format( args.era  ), args.era, binned_in,
@@ -317,7 +317,7 @@ class Fractions():
 
         return list(set(otherParts))
 
-    def visualize(self, frac_file = "", outname = "", outdir=""):
+    def visualize_old(self, frac_file = "", outname = "", outdir=""):
 
         # contr = ["TT","W","QCD","real"]
         contr = ["tt", "w", "qcd", "real"]
@@ -360,52 +360,85 @@ class Fractions():
 
         file.Close()
 
-    def visualizeNew(self, frac_file = "", outname = "", outdir=""):
+    def visualizeNew(self, frac_file = "", outname = "", outdir="", binned_in=[]):
 
-        # contr = ["TT","W","QCD","real"]
         contr = ["tt", "w", "qcd", "real"]
-        # contr = ["tt", "w", "qcd"]
-        # if self.channel == "tt":
-        #     contr.append("DY")
+        input_frac_dir = "fracs_original/"
+        plot_name = "frac"
+        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in)
 
-        # contr = self.composition["w"] + self.composition["tt"] + self.composition["qcd"] + self.composition["real"]
+        contr = ["tt", "w", "qcd", "real"]
+        input_frac_dir = "fracs/"
+        plot_name = "frac_norm"
+        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in)
+        
+        contr = self.composition["w"] + self.composition["tt"] + self.composition["qcd"] + self.composition["real"]
+        input_frac_dir = "all_original/"
+        plot_name = "all"
+        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in)
+        
+        contr = self.composition["w"] + self.composition["tt"] + self.composition["qcd"] + self.composition["real"]
+        input_frac_dir = "all/"
+        plot_name = "all_norm"
+        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in)
 
-        # file = R.TFile( self.era + "_preliminary_fractions/{0}_aiso2_fractions.root".format( self.channel ), "read" )
+
+    def make_plot(self, contr=[], outname = "", outdir="", input_frac_dir="", binned_in=[]):
+
         file = R.TFile(self.era + "_preliminary_fractions/{0}_aiso2_incl.root".format(self.channel), "read")
+        
+        Hists = { c:file.Get(input_frac_dir+c) for c in contr   }
 
-
-        Hists = { c:file.Get("fracs_original/"+c) for c in contr   }
+        if binned_in:
+            var = Var(binned_in[0])
 
         for i in xrange(1, Hists[ contr[0] ].GetNbinsY() + 1 ):
 
             hists = { c: Hists[c].ProjectionX(c +"x",i,i) for c in Hists }
-            dummy = self.cpHist(hists[ contr[0] ], "Fractions")
-            stack = R.THStack("stack", "")
-            leg = R.TLegend(0.82, 0.5, 0.98, 0.9)
-            for c in contr: 
-                pl.applyHistStyle( hists[c], c )
-                stack.Add( hists[c] )
 
-            for c in contr[::-1]:
-                leg.AddEntry( hists[c], c )
+            outfile = os.path.join(outdir, str(i) + '_' + outname + '_' + self.channel + '_fractions.png')
 
-            cv = R.TCanvas(str(i)+"cv", str(i)+"cv", 10, 10, 700, 600)
-            R.gPad.SetRightMargin(0.2)
-            dummy.GetYaxis().SetRangeUser(0,stack.GetMaximum())
-            dummy.Draw()
-            stack.Draw("same")
-            leg.Draw()
-            R.gPad.RedrawAxis()
+            descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.channel, "CoM": "13",
+                        "lumi": "41.5", "title": "", "yaxis": "Background Composition"}
 
-            outfile = os.path.join(outdir, str(i) + '_' +outname+ '_' +self.channel + '_fractions_original.png')
-            cv.Print(outfile)
+            sorted = sort_by_target_names(hists)
+            print sorted
 
-            cv.SaveAs(outfile.replace(".png", ".root"))
+            pl.simple_plot(sorted, canvas="linear", signal=[],
+                       descriptions=descriptions, outfile=outfile, optimizeTicks=True)
 
         file.Close()
 
-        self.visualize(frac_file, outname, outdir)
+def get_index_for_fraction_name(listitem):
+    name = listitem[0]
 
+    if name == "tt":
+        print "name is tt"
+        return 0
+    elif name == "w":
+        print "name is w"
+        return 1
+    elif name == "qcd":
+        print "name is qcd"
+        return 2
+    elif name == "real":
+        print "name is real"
+        return 3
+    else:
+        print "name is something else:"
+        print name
+        return 4
+
+def sort_by_target_names(histograms):
+
+    print "histograms:"
+    print histograms
+
+    names = [(name, (name, h)) for name, h in histograms.items()]
+    names.sort(key=get_index_for_fraction_name)
+    sorted = [copy.deepcopy(n[1]) for n in names]
+
+    return sorted
 
 if __name__ == '__main__':
     main()
