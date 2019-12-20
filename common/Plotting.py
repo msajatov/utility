@@ -83,14 +83,14 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     leftMargin=0.18
     rightMargin=0.05       
 
-    legWidth = 150.0
+    legWidth = 100.0
     relLegWidth = legWidth / width
         
-    leg = R.TLegend(1 - relLegWidth - 0.05, 0.65, 1 - 0.05, 1 - topMargin - 0.05)  
+    leg = R.TLegend(1 - relLegWidth * 1.5 - 0.05, 0.65, 1 + relLegWidth - 0.05, 1 - topMargin - 0.05)  
 
     if legend == "outer":
         originalWidth = width
-        legWidth = 75.0
+        legWidth = 100.0
         width = int(originalWidth + legWidth)
 
         relLegWidth = legWidth / width
@@ -98,7 +98,7 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
         leftMargin=leftMargin * originalWidth / width
         rightMargin = (rightMargin * originalWidth + legWidth) / width        
             
-        leg = R.TLegend(1 - rightMargin + 0.02, 0.70, 1 - rightMargin + 0.02 + relLegWidth * 2, 1 - topMargin)    
+        leg = R.TLegend(1 - rightMargin, 0.70, 1 - rightMargin + relLegWidth * 2.5, 1 - topMargin)    
 
     for h in reversed(histos):
         leg.AddEntry(h[1], " " + getFancyName(h[0]), "f")
