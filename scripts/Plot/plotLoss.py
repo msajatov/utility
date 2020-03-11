@@ -5,8 +5,8 @@ import matplotlib as mpl
     
 
 
-modelpath = "/eos/user/m/msajatov/data/storage/nnFractions/output/models/{0}/{1}"
-
+# modelpath = "/eos/user/m/msajatov/data/storage/nnFractions/output/models/{0}/{1}"
+modelpath = "/eos/user/m/msajatov/data/storage/nn/models/{0}/{1}"
 
 def main():
     
@@ -14,16 +14,21 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', dest='channel', help='Decay channel' ,choices = ['mt','et','tt'], default = 'mt')
     parser.add_argument('-e', dest='era', help='Era',required = True )
+    parser.add_argument('-m', dest='mode', help='Mode',default = '' )
     
     args = parser.parse_args()
     
-    configs = ["nn23", "4cat_vars3"]
+    if args.mode:
+        configs = [args.mode]
+    else:
+        configs = ["snn13", "snn14"]
     makePlot(args.channel, args.era, configs[0])
-    makePlot(args.channel, args.era, configs[1])
+    # makePlot(args.channel, args.era, configs[1])
     
-    makeCombinedPlot(args.channel, args.era, configs)
+    # makeCombinedPlot(args.channel, args.era, configs)
     
-#     loadHistory(args.channel, args.era, args.mode)
+    loadHistory(args.channel, args.era, configs[0])
+    # loadHistory(args.channel, args.era, configs[1])
 
 
 def loadHistory(channel, era, config):
@@ -36,33 +41,53 @@ def loadHistory(channel, era, config):
     filtered = [f for f in files if "{0}_trainHistoryDict".format(channel) in f]
     print filtered 
     
-    if len(filtered) != 2:
+    if len(filtered) == 1:
+        file0 = filtered[0]
+        num0 = file0.replace("{0}_trainHistoryDict_fold_".format(channel), "")
+        fullpath0 = os.path.join(dir, file0)
+        hist0 = pickle.load(open(fullpath0, "rb"))
+        val_loss_min0 = min(hist0["val_loss"])
+        print config
+        print val_loss_min0
+        return [hist0]
+        
+    elif len(filtered) == 2:
+        file0 = filtered[0]
+        file1 = filtered[1]
+        
+        num0 = file0.replace("{0}_trainHistoryDict_fold_".format(channel), "")
+        num1 = file1.replace("{0}_trainHistoryDict_fold_".format(channel), "")
+        
+        if int(num0) > int(num1):
+            file_temp = file0
+            file0 = file1
+            file1 = file_temp
+            print "Reversed order"
+            
+        fullpath0 = os.path.join(dir, file0)
+        fullpath1 = os.path.join(dir, file1)
+            
+        hist0 = pickle.load(open(fullpath0, "rb"))
+        hist1 = pickle.load(open(fullpath1, "rb"))
+
+        val_loss_min0 = min(hist0["val_loss"])
+        val_loss_min1 = min(hist1["val_loss"])
+
+        print config
+        print val_loss_min0
+        print val_loss_min1
+
+        # print hist0
+        # print hist1
+        return [hist0, hist1]
+
+    else:
         print "Wrong file count"
         return
     
-    file0 = filtered[0]
-    file1 = filtered[1]
-    
-    num0 = file0.replace("{0}_trainHistoryDict_fold_".format(channel), "")
-    num1 = file1.replace("{0}_trainHistoryDict_fold_".format(channel), "")
-    
-    if int(num0) > int(num1):
-        file_temp = file0
-        file0 = file1
-        file1 = file_temp
-        print "Reversed order"
-        
-    fullpath0 = os.path.join(dir, file0)
-    fullpath1 = os.path.join(dir, file1)
-        
-    hist0 = pickle.load(open(fullpath0, "rb"))
-    hist1 = pickle.load(open(fullpath1, "rb"))
-    
-    return [hist0, hist1]
-    
 def makePlot(channel, era, config, suffix=""):
         
-    mpl.use('Agg')
+    #mpl.use('Agg')
     import matplotlib.pyplot as plt
     
     plt.figure()
@@ -94,7 +119,7 @@ def makePlot(channel, era, config, suffix=""):
     plt.savefig(os.path.join(plotpath, "{0}_fold_{1}_loss_{2}.png".format(channel, fold, config)), bbox_inches="tight")
     plt.savefig(os.path.join(plotpath, "{0}_fold_{1}_loss_{2}.pdf".format(channel, fold, config)), bbox_inches="tight")
     
-#     plt.show()
+    plt.show()
     
 def makeCombinedPlot(channel, era, configs):
     
