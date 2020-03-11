@@ -38,7 +38,7 @@ def main():
 
     plot(histos,canvas = "linear")
 
-def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, era="" ):
+def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, era="", overlay=[] ):
 
     if outfile and "/" in outfile:
         outdir = "/".join(outfile.split("/")[:-1])
@@ -184,7 +184,18 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
     r = " ({1}, {0} TeV)".format(som, era)
     righttop = R.TLatex( 0.655, 0.932, l+r)
 
+    ##### overlay #####
+    coord = 0.45
+    textboxes = []
+    for line in overlay:
+        box = R.TLatex( 0.6, coord, line )
+        box.SetTextFont(42)
+        box.SetTextSize(0.03)
+        box.SetNDC()
+        textboxes.append(box)
+        coord = coord - 0.035
 
+    ##### overlay #####
 
     cms1.SetNDC();
     cms2.SetNDC();
@@ -289,6 +300,13 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
     cms2.Draw()
     channel.Draw()
     righttop.Draw()
+    
+    ##### overlay #####
+    
+    for box in textboxes:
+        box.Draw()
+
+    ##### overlay #####
 
     cvname = os.path.basename(outfile)
     cvname = cvname.replace(".png", "")
