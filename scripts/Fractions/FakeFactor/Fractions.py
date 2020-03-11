@@ -365,12 +365,12 @@ class Fractions():
         contr = ["tt", "w", "qcd", "real"]
         input_frac_dir = "fracs_original/"
         plot_name = "frac"
-        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in, legend="inner")
+        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in, legend="inner", ylabel="Event Count")
 
         contr = ["tt", "w", "qcd", "real"]
         input_frac_dir = "fracs/"
         plot_name = "frac_norm"
-        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in, legend="outer")
+        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in, legend="outer", ylabel="Normalized Event Count")
         
         # contr = self.composition["w"] + self.composition["tt"] + self.composition["qcd"] + self.composition["real"]
         # input_frac_dir = "all_original/"
@@ -383,7 +383,7 @@ class Fractions():
         # self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in)
 
 
-    def make_plot(self, contr=[], outname = "", outdir="", input_frac_dir="", binned_in=[], legend="outer"):
+    def make_plot(self, contr=[], outname = "", outdir="", input_frac_dir="", binned_in=[], legend="outer", ylabel=""):
 
         files = ["aiso2"]
         if self.channel == "tt":
@@ -399,12 +399,20 @@ class Fractions():
 
             for i in xrange(1, Hists[ contr[0] ].GetNbinsY() + 1 ):
 
+                if binned_in[1] == "njets" and ylabel != "":
+                    if i == 1:
+                        new_ylabel = ylabel + r" (N_{jet} = 0)"
+                    elif i == 2:
+                        new_ylabel = ylabel + r" (N_{jet} = 1)"
+                    else:
+                        new_ylabel = ylabel + r" (N_{jet} > 1)"
+
                 hists = { c: Hists[c].ProjectionX(c +"x",i,i) for c in Hists }
 
                 outfile = os.path.join(outdir, str(i) + '_' + outname + '_' + self.channel + '_' + f + '_fractions.png')
 
                 descriptions = {"plottype": "Project Work", "xaxis": var.tex, "channel": self.channel, "CoM": "13",
-                            "lumi": "41.5", "era": self.era, "title": "", "yaxis": "Events"}
+                            "lumi": "41.5", "era": self.era, "title": "", "yaxis": new_ylabel}
 
                 sorted = sort_by_target_names(hists)
                 print sorted
