@@ -7,6 +7,6 @@ __init__.py
 *.project
 *.pydevproject
 
+config/
 scripts/Plot/old_plots/
-
 scripts/Fractions/output/
