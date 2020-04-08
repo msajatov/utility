@@ -2,6 +2,7 @@ __init__.py
 *.pyc
 *.png
 *.root
+*.pdf
 
 *.project
 *.pydevproject
