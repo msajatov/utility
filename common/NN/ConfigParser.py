@@ -1,3 +1,5 @@
+import globalVars
+
 import json
 import sys
 from common.NN.Sample import Sample
@@ -14,9 +16,10 @@ class ConfigParser:
 
     def __init__(self, channel, era, file_path):
         
-        filepath = os.path.dirname(os.path.realpath(__file__))
-        
-        Cut.cutfile = os.path.join(filepath, "conf/cuts_{0}.json".format(era))
+        #filepath = os.path.dirname(os.path.realpath(__file__))
+        #Cut.cutfile = os.path.join(filepath, "conf/cuts_{0}.json".format(era))
+
+        Cut.cutfile = os.path.join(globalVars.__UTILITY_ROOT_PATH__, "config/cuts/cuts_{0}.json".format(era))
         
         self.channel = channel
         self.era = era
@@ -33,7 +36,7 @@ class ConfigParser:
 
         self.cut_dict = {}
 
-        self.cut_config_path = os.path.join(filepath, "conf/cuts_{0}.json".format(era))
+        self.cut_config_path = os.path.join(globalVars.__UTILITY_ROOT_PATH__, "config/cuts/cuts_{0}.json".format(era))
         self.read_cut_mapping(self.cut_config_path)
         self.parse(self.file_path)
 
@@ -56,6 +59,8 @@ class ConfigParser:
         self._parse_sample(config)
 
         self._add_samples_to_categories()
+
+        print ""
 
         #for cat in self.target_categories:
             #print cat.name + ":"
@@ -96,7 +101,7 @@ class ConfigParser:
             name = key
             class_weight = self._assert_channel(val)
             target_cat = TargetCategory(name, class_weight)
-            print target_cat
+            #print target_cat
             self.target_categories.append(target_cat)
 
         #print self.target_categories
