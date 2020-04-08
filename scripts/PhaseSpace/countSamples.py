@@ -1,6 +1,7 @@
+import globalVars
+
 from common.NN.ConfigParser import ConfigParser
 from common.NN.DataReader import DataReader
-from common.FractionPlotter import FractionPlotter
 from common.NN.Settings import Settings
 
 import root_numpy as rn
@@ -20,36 +21,30 @@ def main():
     parser.add_argument('-e', dest='era',  help='Era', choices=["2016", "2017"], required = True)
     args = parser.parse_args()
     
-    filepath = "/afs/cern.ch/work/m/msajatov/private/CMSSW_9_4_0/src/dev/utility"
+    #print globalVars.__UTILITY_ROOT_PATH__
+    #filepath = "/afs/cern.ch/work/m/msajatov/private/CMSSW_9_4_0/src/dev/utility"
         
     era = args.era
     channel = args.channel
     
-    configpath = os.path.join(filepath, "config/samples/antiiso/frac_config_{0}_{1}.json".format(channel, era))
-    
+    configpath = os.path.join(globalVars.__UTILITY_ROOT_PATH__, "config/samples/frac_config_{0}_{1}.json".format(channel, era))    
     parser = ConfigParser(channel, era, configpath)
     
-    settings = Settings(channel, era, "keras", "none")
+    settings = Settings(channel, era)
     settings.config_parser = parser
     
-    samples = [sset for sset in parser.samples if ("_full" in sset.name)]
-    samples = [sset for sset in samples if (not "data" in sset.name)]
-    # samples = [sset for sset in samples if (not "EMB" in sset.name)]
+    # filter samples defined in frac_config_xx_xx.json
+    samples = [sample for sample in parser.samples if ("_full" in sample.name)]
+    samples = [sample for sample in samples if (not "data" in sample.name)]
+
+    newcut = Cut("-OS- && -ISO-", channel)
+    print "Additional cuts to apply: {0}".format(newcut.original)
+    print ""
+
+    for sample in samples:
+        sample.cut = sample.cut + newcut
     
-    reader = DataReader()
-
-    
-    # if channel == "et":
-    #     correct_id_1 = 3
-    # elif channel == "mt":
-    #     correct_id_1 = 4
-    # else:
-    #     correct_id_1 = 5
-
-    # correct_id_2 = 5
-
-    # subcuts_1 = ["", " & gen_match_1 == {0}".format(correct_id_1), " & gen_match_1 != {0}".format(correct_id_1)]
-    # subcuts_2 = ["", " & gen_match_2 == {0}".format(correct_id_2), " & gen_match_2 != {0}".format(correct_id_2)]
+    reader = DataReader()    
 
     subcuts_1 = []
     subcuts_2 = []
@@ -61,32 +56,24 @@ def main():
     subcuts_1 += [""]
     subcuts_2 += [""]
     
-    for sset in samples:
-        print sset
-#         df = reader.get_data_for_sample(sset, ["pt_1", "pt_2", "iso_1", "iso_2"])
-#         print df   
-        print sset.full_path
-        tfile = reader.get_root_tree(sset)
-        
-        tree = tfile.TauCheck
-        
-        #sset.cut = sset.cut.switchCutTo("-ANTIISO1-")
+    for sample in samples:
+        print sample
 
-        #newcut = Cut("-OS- && -ISO-", channel)
-        #sset.cut = sset.cut + newcut
+        tfile = reader.get_root_tree(sample)        
+        tree = tfile.TauCheck
         
         tempstring = ""
 
         for sc1 in subcuts_1:
             for sc2 in subcuts_2:
-                completecut = sset.cut.get() + sc1 + sc2
-                completecutname = sset.cut.original + sc1 + sc2
-                #print "{0}; {1}:".format(sset.name, completecutname)
+                completecut = sample.cut.get() + sc1 + sc2
+                completecutname = sample.cut.original + sc1 + sc2
                 val = tree.GetEntries(completecut)
-                #print "Count: {0}".format(val)
                 tempstring += str(val) + ";"
             print tempstring
             tempstring = ""
+
+        print ""
         
 
 if __name__ == '__main__':
