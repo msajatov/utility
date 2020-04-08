@@ -1,6 +1,5 @@
 {
-    "path": "/afs/hephy.at/data/higgs01/v10/",
-    "outpath": "/afs/hephy.at/work/m/msajatovic/data/mlFramework/",
+    "path": "/afs/cern.ch/work/m/msajatov/private/eosmount/user/m/msajatov/data/ntuples_scp/v10/",
     "variables":{
         "et": [
             "pt_1",
@@ -22,7 +21,6 @@
             "met"
         	]
     },
-    "shifted_variables": ["njets","jpt_1","jpt_2","m_sv","mt_1","mt_2","bpt_1","bpt_2","nbtag","pt_tt","met","jdeta","mjj","dijetpt","htxs_reco_ggf","htxs_reco_vbf"],
     "addvar": [
         "evt",
         "by*IsolationMVArun2017v2DBoldDMwLT2017*",
@@ -39,6 +37,7 @@
         "eta_2",
         "mt_1",
         "njets",
+        "m_sv",
         "decayMode_1",
         "decayMode_2",
         "dilepton_veto",
@@ -52,16 +51,17 @@
         "*weight*",
         "htxs*"
     ],
+    "shifted_variables":{},
 
     "version":{
         "et":"v5"
     },
     "lumi": 41.529,
       "class_weight":{
-          "tt":     {"et":17.1   },
-        "w":     {"et":2.5  },
-        "qcd":     {"et":2.5    },
-          "real":     {"et":7.2 }
+          "tt":     {"et":1.0   },
+        "w":     {"et":1.0  },
+        "qcd":     {"et":1.0    },
+          "real":     {"et":1.0 }
       },
 
     "target_values":{
@@ -72,10 +72,6 @@
     },
 
     "weights":["*weight*","gen_match*","topPtReweightWeight*","zPtReweightWeight", "sf*","njets","jpt_1","jdeta","mjj", "dijetpt"],
-    "shape_from_file":["TES1p0p0","TES1p1p0","TES3p0p0","EES1p0p0","EES1p1p0","EES"],
-    "shape_from_tree":["Total","CMS_scale_j_eta0to5_13TeV","CMS_scale_j_eta0to3_13TeV","CMS_scale_j_eta3to5_13TeV","CMS_scale_j_RelativeBal_13TeV","CMS_scale_j_RelativeSample_13TeV",
-                       "Btag","Mistag","CMS_htt_boson_reso_met_13TeV","CMS_htt_boson_scale_met_13TeV"
-    ],
 
     "samples":{
         "ZTT_anti": {

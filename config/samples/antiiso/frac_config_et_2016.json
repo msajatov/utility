@@ -1,6 +1,5 @@
 {
-    "path": "/afs/hephy.at/data/higgs01/data_2016/ntuples_v6/{0}/ntuples_SVFIT_merged/",
-    "outpath": "/afs/hephy.at/work/m/msajatovic/data/mlFramework/",
+    "path": "eos/user/m/msajatov/data/ntuples_scp/2016/v6/{0}/ntuples_SVFIT_merged/",
     "variables":{
         "et": [
             "pt_1",
@@ -11,7 +10,6 @@
             "bpt_2",
             "njets",
             "nbtag",
-            "m_sv",
             "mt_1",
             "mt_2",
             "pt_vis",
@@ -20,12 +18,9 @@
             "jdeta",
             "m_vis",
             "dijetpt",
-            "met",
-            "eta_1",
-            "eta_2"
+            "met"
         ]
     },
-    "shifted_variables": ["njets","jpt_1","jpt_2","jdeta","mjj","dijetpt","htxs_reco_ggf","htxs_reco_vbf"],
     "addvar": [
         "evt",
         "by*IsolationMVArun2v1DBoldDMwLT*",
@@ -40,6 +35,7 @@
         "eta_2",
         "mt_1",
         "njets",
+        "m_sv",
         "decayMode_1",
         "decayMode_2",
         "dilepton_veto",
@@ -59,10 +55,10 @@
     },
     "lumi": 35.87,
       "class_weight":{
-        "tt": {"et":20.3},
-        "w": {"et":2.5},
-        "qcd": {"et":2.6},
-        "real": {"et":6.3}
+        "tt": {"et":1.0},
+        "w": {"et":1.0},
+        "qcd": {"et":1.0},
+        "real": {"et":1.0}
     },
 
     "target_values":{
@@ -73,8 +69,6 @@
     },
 
     "weights":["*weight*","gen_match*","top*","zPtReweightWeight"],
-    "shape_from_file":["T0","T1","T10","ZL0","ZL1","EES","btagEff","btagMistag","metJetEn","metUnclusteredEn","jecUncRelativeBal","jecUncEta0to3","jecUncEta0to5","jecUncEta3to5","metRecoilResponse","metRecoilResolution"],
-    "shape_from_tree":["CMS_scale_j_eta0to5_13Tev","CMS_scale_j_eta0to3_13TeV","CMS_scale_j_eta3to5_13TeV","CMS_scale_j_RelativeBal_13TeV"],
 
     "samples":{
         "ZTT_anti": {

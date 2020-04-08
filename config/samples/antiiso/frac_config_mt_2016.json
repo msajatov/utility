@@ -1,6 +1,5 @@
 {
-    "path": "/afs/hephy.at/data/higgs01/v10/",
-    "outpath": "/afs/hephy.at/work/m/msajatovic/data/mlFramework/",
+    "path": "eos/user/m/msajatov/data/ntuples_scp/2016/v6/{0}/ntuples_SVFIT_merged/",
     "variables":{
         "mt": [
             "pt_1",
@@ -8,7 +7,7 @@
             "jpt_1",
             "jpt_2",
             "bpt_1",
-			"bpt_2",
+            "bpt_2",
             "njets",
             "nbtag",
             "mt_1",
@@ -21,14 +20,12 @@
             "dijetpt",
             "met"
             ]
+
     },
-    "shifted_variables": ["njets","jpt_1","jpt_2","jdeta","m_sv","bpt_1","bpt_2","nbtag","mt_1","pt_tt","mjj","htxs_reco_ggf","htxs_reco_vbf"],
     "addvar": [
         "evt",
-        "by*IsolationMVArun2017v2DBoldDMwLT2017*",
+        "by*IsolationMVArun2v1DBoldDMwLT*",
         "pt_1",
-        "pt_2",
-        "m_vis",
         "q_1",
         "q_2",
         "iso_1",
@@ -39,6 +36,7 @@
         "eta_2",
         "mt_1",
         "njets",
+        "m_sv",
         "decayMode_1",
         "decayMode_2",
         "dilepton_veto",
@@ -56,93 +54,89 @@
     "version":{
         "mt":"v5"
     },
-    "lumi": 41.529,
+    "lumi": 35.87,
       "class_weight":{
-          "tt":    {"mt":19.4 },
-        "w":    {"mt":2.5 },
-        "qcd":    {"mt":2.5 },
-        "real":    {"mt":6.4 }
+        "tt": {"mt":1.0},
+        "w": {"mt":1.0},
+        "qcd": {"mt":1.0},
+        "real": {"mt":1.0}
       },
 
     "target_values":{
         "tt":    0,
         "w":    1,
-        "qcd":      2,
-        "real":     3
+        "qcd":    2,
+        "real":    3
     },
 
-    "weights":["*weight*","gen_match*","topPtReweightWeight*","zPtReweightWeight", "sf*","njets","jpt_1","jdeta","mjj","dijetpt"],
-    "shape_from_file":["TES1p0p0","TES1p1p0","TES3p0p0","MES1p0p0","MES1p1p0"],
-    "shape_from_tree":["Total","CMS_scale_j_eta0to5_13TeV","CMS_scale_j_eta0to3_13TeV","CMS_scale_j_eta3to5_13TeV","CMS_scale_j_RelativeBal_13TeV","CMS_scale_j_RelativeSample_13TeV",
-                       "Btag","Mistag","CMS_htt_boson_reso_met_13TeV","CMS_htt_boson_scale_met_13TeV"
-    ],
+    "weights":["*weight*","gen_match*","top*","zPtReweightWeight"],
 
     "samples":{
         "ZTT_anti": {
             "target":{"mt":"real"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENTAU-",
             "name": "NOMINAL_ntuple_DY",
-            "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight*sf_SingleXorCrossTrigger"
+            "event_weight": "weight*( 0.95*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight"
         },
         "ZL_anti": {
             "target":{"mt":"real"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- &&  ((-GENJET- || -GENTAU-) < 0.5)",
             "name": "NOMINAL_ntuple_DY",
-            "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight*sf_SingleXorCrossTrigger"
+            "event_weight": "weight*( 0.95*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight"
         },
         "ZJ_anti": {
             "target":{"mt":"w"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENJET-",
             "name": "NOMINAL_ntuple_DY",
-            "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight*sf_SingleXorCrossTrigger"
+            "event_weight": "weight*( 0.95*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight"
         },
         "TTT_anti": {
             "target":{"mt":"real"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
             "name": "NOMINAL_ntuple_TT",
-            "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1*sf_SingleXorCrossTrigger"
+            "event_weight": "weight*( 0.95*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topWeight_run1"
         },
         "TTL_anti": {
             "target":{"mt":"real"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && ((-GENJET- || -GENTAU-) < 0.5)",
             "name": "NOMINAL_ntuple_TT",
-            "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1*sf_SingleXorCrossTrigger"
+            "event_weight": "weight*( 0.95*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topWeight_run1"
         },
         "TTJ_anti": {
             "target":{"mt":"tt"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENJET- ",
             "name": "NOMINAL_ntuple_TT",
-            "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1*sf_SingleXorCrossTrigger"
+            "event_weight": "weight*( 0.95*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topWeight_run1"
         },
         "VVT_anti": {
             "target":{"mt":"real"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
             "name": "NOMINAL_ntuple_VV",
-            "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
+            "event_weight": "weight*( 0.95*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
         },
         "VVL_anti": {
             "target":{"mt":"real"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && ((-GENJET- || -GENTAU-) < 0.5)",
             "name": "NOMINAL_ntuple_VV",
-            "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
+            "event_weight": "weight*( 0.95*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
         },
         "VVJ_anti": {
             "target":{"mt":"w"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENJET-",
             "name": "NOMINAL_ntuple_VV",
-            "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
+            "event_weight": "weight*( 0.95*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
         },
         "W_anti": {
             "target":{"mt":"w"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_WJets",
-            "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
+            "event_weight": "weight*( 0.95*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
         },
         "QCD_estimate": {
-            "target":{"mt":"qcd" },
+            "target":{"mt":"qcd"},
             "select": "-SS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_Data",
-            "event_weight": 0.714428915891
+            "event_weight": 0.840537405556
         },
         "VV_full": {
             "target":"none",
