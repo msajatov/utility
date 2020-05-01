@@ -87,7 +87,7 @@ def main(raw_args=None):
                        (1, array("d", [-0.5, 15]))]
         else:
             bin_var = Var(args.var)
-            binned_in = [args.var, "njets"]
+            binned_in = [args.var, "nbtag"]
             binning = [bin_var.bins(), (1, array("d", [-0.5, 15]))]
 
         Frac = Fractions(channel, binned_in, binning , args.era )
@@ -365,12 +365,12 @@ class Fractions():
         contr = ["tt", "w", "qcd", "real"]
         input_frac_dir = "fracs_original/"
         plot_name = "frac"
-        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in, legend="inner", ylabel="Event Count")
+        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in, legend="inner", ylabel="Event Count", norm=False)
 
         contr = ["tt", "w", "qcd", "real"]
         input_frac_dir = "fracs/"
         plot_name = "frac_norm"
-        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in, legend="outer", ylabel="Normalized Event Count")
+        self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in, legend="outer", ylabel="Background Fractions")
         
         # contr = self.composition["w"] + self.composition["tt"] + self.composition["qcd"] + self.composition["real"]
         # input_frac_dir = "all_original/"
@@ -383,7 +383,7 @@ class Fractions():
         # self.make_plot(contr, plot_name, outdir, input_frac_dir, binned_in)
 
 
-    def make_plot(self, contr=[], outname = "", outdir="", input_frac_dir="", binned_in=[], legend="outer", ylabel=""):
+    def make_plot(self, contr=[], outname = "", outdir="", input_frac_dir="", binned_in=[], legend="outer", ylabel="", norm=True):
 
         files = ["aiso2"]
         if self.channel == "tt":
@@ -399,13 +399,15 @@ class Fractions():
 
             for i in xrange(1, Hists[ contr[0] ].GetNbinsY() + 1 ):
 
-                if binned_in[1] == "njets" and ylabel != "":
+                if len(binned_in) > 1 and binned_in[1] == "njets" and ylabel != "":
                     if i == 1:
                         new_ylabel = ylabel + r" (N_{jet} = 0)"
                     elif i == 2:
                         new_ylabel = ylabel + r" (N_{jet} = 1)"
                     else:
                         new_ylabel = ylabel + r" (N_{jet} > 1)"
+                else:
+                    new_ylabel = ylabel
 
                 hists = { c: Hists[c].ProjectionX(c +"x",i,i) for c in Hists }
 
@@ -414,11 +416,21 @@ class Fractions():
                 descriptions = {"plottype": "Project Work", "xaxis": var.tex, "channel": self.channel, "CoM": "13",
                             "lumi": "41.5", "era": self.era, "title": "", "yaxis": new_ylabel}
 
+
+                hists["other"] = hists["real"]
+                hists.pop("real")
                 sorted = sort_by_target_names(hists)
+
+                # for histname, hist in sorted:
+                #     if histname == "real":
+                #         print "found real hist"
+                #         hist.SetName("other")
+                #         sorted["other"] = hist
+                #         sorted.pop("real")
                 print sorted
 
                 pl.simple_plot(sorted, canvas="linear", signal=[],
-                        descriptions=descriptions, outfile=outfile, optimizeTicks=True, legend=legend)
+                        descriptions=descriptions, outfile=outfile, optimizeTicks=not norm, legend=legend)
 
             file.Close()
 
@@ -436,6 +448,9 @@ def get_index_for_fraction_name(listitem):
         return 2
     elif name == "real":
         print "name is real"
+        return 3
+    elif name == "other":
+        print "name is other"
         return 3
     else:
         print "name is something else:"

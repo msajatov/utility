@@ -87,6 +87,12 @@ class Var(object):
                                                                             "et":  array("d", [0.125, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]),
                                                                            }
                 },
+                "predicted_frac_prob":     {"tex":r"Predicted Probability",              "binning": {"def": array("d", [0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0] ) },   },
+                "predicted_frac_class":     {"tex":r"Predicted Class",              "binning": {"def": (4, -0.5,3.5 ) },   },
+                "predicted_frac_prob_0":     {"tex":r"Predicted Probability (t#bar{t})",              "binning": {"def": array("d", [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0] ) },   },
+                "predicted_frac_prob_1":     {"tex":r"Predicted Probability (W)",              "binning": {"def": array("d", [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0] ) },   },
+                "predicted_frac_prob_2":     {"tex":r"Predicted Probability (QCD)",              "binning": {"def": array("d", [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0] ) },   },
+                "predicted_frac_prob_3":     {"tex":r"Predicted Probability (Other)",              "binning": {"def": array("d", [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0] ) },   },
                 "predicted_class":     {"tex":r"class",              "binning": {"def": (8, -0.5,7.5 ) },   },
                 "m_sv":           {"tex":r"m_{sv} (GeV)" ,            "binning": {"def": (30,0,300) },  },
                 # "m_vis":        {"tex":r"m_{vis}" ,           "binning": {"def": (10,20,200) },    },
