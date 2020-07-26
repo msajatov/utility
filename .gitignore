@@ -9,4 +9,5 @@ __init__.py
 
 config/
 scripts/Plot/old_plots/
-scripts/Fractions/output/
+scripts/Fractions/output
+scripts/Fractions/old_output
