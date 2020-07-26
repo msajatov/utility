@@ -1,4 +1,4 @@
-import common.PrettyPlotting as pl
+import common.DatacardPlotting as pl
 from common.Tools.VarObject.VarObject import Var
 
 import root_numpy as rn
@@ -18,35 +18,29 @@ def main():
     parser.add_argument('-c', dest='channel', help='Decay channel' ,choices = ['mt','et','tt'], default = 'mt')
     parser.add_argument('-o', dest='out', help='Path to outdir', default="" )
     parser.add_argument('-e', dest='era', help='Era',required = True )
-    parser.add_argument('--real_est', dest='real_est', help='define which method to use for real part subtractio', choices = ['mc','frac'], default="mc" )
-    parser.add_argument('--fake_est', dest='fake_est', help='define which method to use for determining fractions used in the fake factor method',
-                        choices=['bin', 'nn'], default="bin")
+    # parser.add_argument('--real_est', dest='real_est', help='define which method to use for real part subtractio', choices = ['mc','frac'], default="mc" )
+    # parser.add_argument('--fake_est', dest='fake_est', help='define which method to use for determining fractions used in the fake factor method',
+    #                     choices=['bin', 'nn'], default="bin")
     parser.add_argument('--syst', dest='syst', help='Add systematics and shape', action="store_true" )
-    parser.add_argument('--debug', dest='debug', help='Debug Mode for FFs', action="store_true" )
-    parser.add_argument('--plot_only', dest='plot_only', help='Plot datacard', action="store_true")
-    parser.add_argument('--prefix', dest='prefix', help='Prefix for nn frac config', default="")
+    # parser.add_argument('--debug', dest='debug', help='Debug Mode for FFs', action="store_true" )
+    # parser.add_argument('--plot_only', dest='plot_only', help='Plot datacard', action="store_true")
+    # parser.add_argument('--prefix', dest='prefix', help='Prefix for nn frac config', default="")
     parser.add_argument('-t', dest='type', help='Plot type')
 
 
     args = parser.parse_args()
-#     Datacard.use_config = "conf" +  args.era
 
-#     for u in args.var:
-#         if args.out:
-#             makePlot(args.channel, u, args.out, args.era, "{0}_{1}_plots".format(args.out, args.era))
-#         else:
-#             makePlot(args.channel, u, args.out, args.era)
-        #input = raw_input("Enter any key to exit parent: ")
+    outdir_base = "/eos/user/m/msajatov/wormhole/temp/datacard_plots"
         
-    indir = "/afs/cern.ch/work/m/msajatov/private/cms/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/shapes/emb_dc/{0}".format(args.out)
-    dir = "/afs/cern.ch/work/m/msajatov/private/cms/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/shapes/emb_dc/{0}".format(args.out)
+    indir = "/afs/cern.ch/work/m/msajatov/private/cms2/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/shapes/emb_dc/{0}".format(args.out)
+    dir = "/afs/cern.ch/work/m/msajatov/private/cms2/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/shapes/emb_dc/{0}".format(args.out)
     for u in args.var:
         if args.syst:
-            #indir = "/afs/cern.ch/work/m/msajatov/private/cms2/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/fittest6/{0}/gof/2017/{1}/saturated/{2}".format(args.out, u, args.channel)
-            #dir = "/afs/cern.ch/work/m/msajatov/private/cms2/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/fittest6/{0}/gof/2017/{1}".format(args.out, u)
-            indir = "/afs/cern.ch/work/m/msajatov/private/cms2/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/fit_combination_corr/{0}/gof/2017/{1}/saturated/{2}".format(args.out, u, args.channel)
-            dir = "/afs/cern.ch/work/m/msajatov/private/cms2/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/fit_combination_corr/{0}/gof/2017/{1}".format(args.out, u)
-        makePlot(args.channel, u, indir, args.era, dir, args, "{0}_{1}_plots".format(args.out, args.era), args.syst)
+            indir = "/afs/cern.ch/work/m/msajatov/private/cms2/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/fittest6/{0}/gof/2017/{1}/saturated/{2}".format(args.out, u, args.channel)
+            dir = "/afs/cern.ch/work/m/msajatov/private/cms2/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/fittest6/{0}/gof/2017/{1}".format(args.out, u)
+            # indir = "/afs/cern.ch/work/m/msajatov/private/cms2/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/fit_combination_corr/{0}/gof/2017/{1}/saturated/{2}".format(args.out, u, args.channel)
+            # dir = "/afs/cern.ch/work/m/msajatov/private/cms2/CMSSW_8_1_0/src/CombineHarvester/HTTSM2017/fit_combination_corr/{0}/gof/2017/{1}".format(args.out, u)
+        makePlot(args.channel, u, indir, args.era, dir, args, outdir_base + "/{0}_{1}_plots".format(args.out, args.era), args.syst)
 
 def makePlot(channel, variable, indir, era, dir, args, outdir = "", syst=False ):
     var = Var(variable)
@@ -86,8 +80,8 @@ def makePlot(channel, variable, indir, era, dir, args, outdir = "", syst=False )
                   ("_def_EMB",["W","VVL","VVJ","TTL","TTJ","EMB","ZL","ZJ","QCD","data"]),
                   ("_ff",["VVT","VVL","TTT","TTL","ZTT","ZL","jetFakes","data"]),
                   ("_ff_split",["VVT","VVL","TTT","TTL","ZTT","ZL","jetFakes_W","jetFakes_TT","jetFakes_QCD","data"]),
-                  ("_ff_EMB_split",["VVL","TTL","ZL","EMB","jetFakes_W","jetFakes_TT","jetFakes_QCD","ggH","qqH","data"]),
-                  ("_ff_EMB",["VVL","TTL","EMB","ZL","jetFakes","ggH","qqH","data"])
+                  ("_ff_EMB_split",["VVL","TTL","ZL","EMB","jetFakes_W","jetFakes_TT","jetFakes_QCD","data"]),
+                  ("_ff_EMB",["VVL","TTL","EMB","ZL","jetFakes","data"])
         ]
         
         print "indir: {0}".format(indir)
@@ -105,8 +99,10 @@ def makePlot(channel, variable, indir, era, dir, args, outdir = "", syst=False )
             if plot and overlay: 
                 textlines = collect(dir, args, plottype)
                 pl.plot(histos, canvas="linear", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era, overlay=textlines )
+                pl.plot(histos, canvas="log", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era, overlay=textlines )
             elif plot:
                 pl.plot(histos, canvas="linear", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era)
+                pl.plot(histos, canvas="log", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era)
     file.Close() 
     
 
