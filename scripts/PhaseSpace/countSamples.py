@@ -34,10 +34,10 @@ def main():
     settings.config_parser = parser
     
     # filter samples defined in frac_config_xx_xx.json
-    samples = [sample for sample in parser.samples if ("_full" in sample.name)]
-    samples = [sample for sample in samples if (not "data" in sample.name)]
+    samples = [sample for sample in parser.samples if ("data" in sample.name)]
+    # samples = [sample for sample in samples if (not "data" in sample.name)]
 
-    newcut = Cut("-OS- && -ISO-", channel)
+    newcut = Cut("-OS- && -ANTIISO-", channel)
     print "Additional cuts to apply: {0}".format(newcut.original)
     print ""
 
@@ -49,9 +49,9 @@ def main():
     subcuts_1 = []
     subcuts_2 = []
 
-    for i in [1,2,3,4,5,6]:
-        subcuts_1 += [" & gen_match_1 == {0}".format(i)]
-        subcuts_2 += [" & gen_match_2 == {0}".format(i)]
+    #for i in [1,2,3,4,5,6]:
+    #    subcuts_1 += [" & gen_match_1 == {0}".format(i)]
+    #    subcuts_2 += [" & gen_match_2 == {0}".format(i)]
 
     subcuts_1 += [""]
     subcuts_2 += [""]

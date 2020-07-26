@@ -39,7 +39,7 @@ def main():
     plot(histos,canvas = "linear")
 
 
-def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions={}, optimizeTicks=True, legend="outer"):
+def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions={}, optimizeTicks=True, legend="outer", max_y_offset=True):
 
     histos = copy.deepcopy(histograms)
 
@@ -67,20 +67,20 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     # legendTextSize = 0.04
 
 
-    topTextSize = 22
+    topTextSize = 24
     cms1TextSize = topTextSize
     cms2TextSize = topTextSize * 0.875
     channelTextSize = topTextSize
     rightTopTextSize = topTextSize * 0.875
     
-    legendTextSize = 22
+    legendTextSize = 24
     
     width=600 
     height=600   
         
     topMargin=0.06
     bottomMargin=0.14
-    leftMargin=0.18
+    leftMargin=0.19
     rightMargin=0.05       
 
     legWidth = 100.0
@@ -105,7 +105,11 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
 
     cv = createSimpleCanvas("cv", width, height, topMargin, bottomMargin, leftMargin, rightMargin)
 
-    maxVal = stack.GetMaximum()
+    if max_y_offset:
+        maxVal = stack.GetMaximum() * 1.05
+    else:
+        maxVal = stack.GetMaximum()
+        
     dummy_up = copy.deepcopy(cumul)
     dummy_up.Reset()
     dummy_up.SetTitle(descriptions.get("title", ""))
@@ -127,14 +131,17 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     dummy_down.GetXaxis().SetTitle("")
 
     leftCornerPos = [leftMargin, 1 - topMargin + 0.01 * 600 / height]
-    rightCornerPos = [1 - rightMargin - 0.315 * 600 / width, 1 - topMargin + 0.012 * 600 / height]
-    midTopPos = [1 - rightMargin - 0.375 * 600 / width, 1 - topMargin + 0.012 * 600 / height]
+    #rightCornerPos = [1 - rightMargin - 0.315 * 600 / width, 1 - topMargin + 0.012 * 600 / height]
+    #midTopPos = [1 - rightMargin - 0.375 * 600 / width, 1 - topMargin + 0.012 * 600 / height]
+    rightCornerPos = [1 - rightMargin - 0.35 * 600 / width, 1 - topMargin + 0.012 * 600 / height]
+    midTopPos = [1 - rightMargin - 0.43 * 600 / width, 1 - topMargin + 0.012 * 600 / height]
 
     cms1 = R.TLatex(leftCornerPos[0], leftCornerPos[1], "CMS")
-    cms2 = R.TLatex(leftCornerPos[0] + 0.09 * 600 / width, leftCornerPos[1], descriptions.get("plottype", "Project Work"))
+    #cms2 = R.TLatex(leftCornerPos[0] + 0.09 * 600 / width, leftCornerPos[1], descriptions.get("plottype", "Project Work"))
+    cms2 = R.TLatex(leftCornerPos[0] + 0.11 * 600 / width, leftCornerPos[1], descriptions.get("plottype", "Project Work"))
     
     
-    chtex = {"et": r"#font[42]{#scale[0.95]{e}}#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
+    chtex = {"et": r"#font[42]{#scale[0.95]{e}}#tau_{#lower[-0.1]{h}}", "mt": r"#mu"r"#tau_{#lower[-0.3]{h}}", "tt": r"#tau_{#lower[-0.1]{h}}#tau_{#lower[-0.1]{h}}", "em": r"e#mu"}
     ch = descriptions.get("channel", "  ")
     ch = chtex.get(ch, ch)
     channel = R.TLatex(midTopPos[0], midTopPos[1], ch )
@@ -162,13 +169,16 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     dummy_up.GetYaxis().SetLabelSize(tickLabelSize)
     dummy_up.GetXaxis().SetTitleSize(axisLabelSize)
     dummy_up.GetXaxis().SetLabelSize(tickLabelSize)
+
+    dummy_up.GetYaxis().SetLabelOffset(0.01)
+    dummy_up.GetXaxis().SetLabelOffset(0.01)
     
     cms1.SetTextSize(cms1TextSize)    
     cms1.SetTextFont(63)       
-    cms2.SetTextFont(53)
+    cms2.SetTextFont(43)
     cms2.SetTextSize(cms2TextSize)
     righttop.SetTextSize(rightTopTextSize)
-    righttop.SetTextFont(43)
+    righttop.SetTextFont(63)
     channel.SetTextSize(channelTextSize)
     channel.SetTextFont(43)
 
@@ -194,6 +204,14 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     channel.Draw()
     righttop.Draw()
 
+    # needed to ensure the correct coordinates for pad border redrawing
+    cv.Update()
+
+    line1 = R.TLine(R.gPad.GetUxmin(), R.gPad.GetUymax(), R.gPad.GetUxmax(), R.gPad.GetUymax())
+    line1.Draw()
+    line2 = R.TLine(R.gPad.GetUxmax(), R.gPad.GetUymin(), R.gPad.GetUxmax(), R.gPad.GetUymax())
+    line2.Draw()
+
     cvname = os.path.basename(outfile)
     cvname = cvname.replace(".png", "")
     cvname = cvname.replace(".root", "")
@@ -203,10 +221,13 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     filename = outfile
     print filename
     cv.SaveAs(filename)
-    filename = outfile.replace(".png", ".root")
+    # filename = outfile.replace(".png", ".root")
+    # print filename
+    # cv.SaveAs(filename)
+    filename = outfile.replace(".png", ".pdf")
     print filename
     cv.SaveAs(filename)
-    filename = outfile.replace(".png", ".pdf")
+    filename = outfile.replace(".png", ".svg")
     print filename
     cv.SaveAs(filename)
 
@@ -562,6 +583,12 @@ def getFancyName(name):
     if name in ["qqH","qqH125"]:    return "VBF"
     if name in ["ggH","ggH125"]:    return "ggF"
 
+    if name in "other":                 return "Other"
+    if name in "tt":                    return "t#bar{t}"
+    if name in "w":                     return "W"
+    if name in "qcd":                   return "QCD"
+    if name in "real":                  return "Real"
+
     return name
 
 
@@ -579,7 +606,7 @@ def getColor(name):
     if name in ["ZL","ZJ","ZLJ", "ZL_anti", "ZJ_anti"]:                   return R.TColor.GetColor(100,192,232)
     if name in ["EWKZ"]:                            return R.TColor.GetColor(8,247,183)
     if name in ["QCD","WSS","jetFakes_QCD", "qcd", "QCD_estimate"]:        return R.TColor.GetColor(250,202,255)
-    if name in ["ZTT","DY","real", "ZTT_anti", "EMB_anti"]:                 return R.TColor.GetColor(248,206,104)
+    if name in ["ZTT","DY","real", "other", "ZTT_anti", "EMB_anti"]:                 return R.TColor.GetColor(248,206,104)
     if name in ["jetFakes"]:                        return R.TColor.GetColor(192,232,100)
     if name in ["data"]:                            return R.TColor.GetColor(0,0,0)
     else: return R.kYellow

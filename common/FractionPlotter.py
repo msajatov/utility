@@ -306,39 +306,37 @@ class FractionPlotter:
         for h in sorted:
             signalnames.append(h[0])
 
-        pl.simple_plot(sorted, canvas="linear", signal=signalnames,
+        pl2.simple_plot(sorted, canvas="linear", signal=signalnames,
                        descriptions=descriptions, outfile=outfile, optimizeTicks=optimizeTicks, constrainLegend=constrainLegend,
                        applyFracColors=applyFracColors, legendWidthMultiplier=legendWidthMultiplier, legend=legend)
 
-    def create_plot(self, histograms, descriptions, outfile, optimizeTicks=True, constrainLegend=True, applyFracColors=False, legendWidthMultiplier=1, legend="outer"):
+    def create_plot(self, histograms, descriptions, outfile, optimizeTicks=True, legend="outer", max_y_offset=True):
         sorted = self.sort_by_target_names(histograms)
         print sorted
 
         pl.simple_plot(sorted, canvas="linear", signal=[],
-                       descriptions=descriptions, outfile=outfile, optimizeTicks=optimizeTicks, constrainLegend=constrainLegend,
-                       applyFracColors=applyFracColors, legendWidthMultiplier=legendWidthMultiplier, legend=legend)
+                       descriptions=descriptions, outfile=outfile, optimizeTicks=optimizeTicks, legend=legend, max_y_offset=max_y_offset)
 
-    def create_plot2(self, histograms, descriptions, outfile, optimizeTicks=True, constrainLegend=True, applyFracColors=False, legendWidthMultiplier=1, legend="outer"):
+    def create_plot2(self, histograms, descriptions, outfile, optimizeTicks=True, constrainLegend=True, applyFracColors=False, legendWidthMultiplier=1, legend="outer", max_y_offset=True):
         sorted = self.sort_by_target_names(histograms)
         print sorted
 
         pl2.simple_plot(sorted, canvas="linear", signal=[],
                        descriptions=descriptions, outfile=outfile, optimizeTicks=optimizeTicks, constrainLegend=constrainLegend,
-                       applyFracColors=applyFracColors, legendWidthMultiplier=legendWidthMultiplier, legend=legend)
+                       applyFracColors=applyFracColors, legendWidthMultiplier=legendWidthMultiplier, legend=legend, max_y_offset=max_y_offset)
 
-    def create_normalized_plot(self, histos, descriptions, outfile, constrainLegend=True, applyFracColors=False, legendWidthMultiplier=1):
+    def create_normalized_plot(self, histos, descriptions, outfile):
         frac_histos = self.normalize(histos)
 #         if descriptions.get("yaxis", ""):
 #             descriptions["yaxis"] = "Normalized " + descriptions.get("yaxis", "")
-        self.create_plot(frac_histos, descriptions, outfile, optimizeTicks=False, constrainLegend=constrainLegend, applyFracColors=applyFracColors,
-        legendWidthMultiplier=legendWidthMultiplier)
+        self.create_plot(frac_histos, descriptions, outfile, optimizeTicks=False, max_y_offset=False)
 
     def create_normalized_plot2(self, histos, descriptions, outfile, constrainLegend=True, applyFracColors=False, legendWidthMultiplier=1):
         frac_histos = self.normalize(histos)
 #         if descriptions.get("yaxis", ""):
 #             descriptions["yaxis"] = "Normalized " + descriptions.get("yaxis", "")
         self.create_plot2(frac_histos, descriptions, outfile, optimizeTicks=False, constrainLegend=constrainLegend, applyFracColors=applyFracColors,
-        legendWidthMultiplier=legendWidthMultiplier)
+        legendWidthMultiplier=legendWidthMultiplier, max_y_offset=False)
 
     def normalize(self, histos):
         bin_totals = []

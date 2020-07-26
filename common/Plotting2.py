@@ -40,7 +40,7 @@ def main():
 
 
 def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions={}, optimizeTicks=True, legend="outer", constrainLegend=True, 
-applyFracColors=False, legendWidthMultiplier=1):
+applyFracColors=False, legendWidthMultiplier=1, max_y_offset=True):
 
     histos = copy.deepcopy(histograms)
 
@@ -150,7 +150,11 @@ applyFracColors=False, legendWidthMultiplier=1):
 
     cv = createSimpleCanvas("cv", width, height, topMargin, bottomMargin, leftMargin, rightMargin)
 
-    maxVal = stack.GetMaximum() * 1.05
+    if max_y_offset:
+        maxVal = stack.GetMaximum() * 1.05
+    else:
+        maxVal = stack.GetMaximum()
+        
     dummy_up = copy.deepcopy(cumul)
     dummy_up.Reset()
     dummy_up.SetTitle(descriptions.get("title", ""))
