@@ -263,15 +263,20 @@ def prepareDummies(content, settings):
     dummy_up.Reset()
     dummy_up.SetTitle("")
     dummy_up.GetYaxis().SetTitleSize(0.05*75/55)
-    dummy_up.GetYaxis().SetTitleOffset(1.6*55/75)
-    dummy_up.GetYaxis().SetLabelSize(20.0)
-    dummy_up.GetYaxis().SetTitle( r"N_{event}" )
+
+    if settings.canvasType == "log":
+        dummy_up.GetYaxis().SetTitleOffset(1.4*55/75)
+    else:
+        dummy_up.GetYaxis().SetTitleOffset(2.0*55/75)
+    
+    dummy_up.GetYaxis().SetLabelSize(25.0)
+    dummy_up.GetYaxis().SetTitle( r"Event Count" )
 
     dummy_down  = copy.deepcopy( data )
     dummy_down.Reset()
     dummy_down.SetTitle("")
     dummy_down.GetYaxis().SetRangeUser( 0.1 , settings.maxVal/ 40 )
-    dummy_down.GetYaxis().SetLabelSize(20.0)
+    dummy_down.GetYaxis().SetLabelSize(25.0)
     dummy_down.GetXaxis().SetLabelSize(0)
     dummy_down.GetXaxis().SetTitle("")
     
@@ -281,11 +286,13 @@ def prepareDummies(content, settings):
     dummy_ratio.SetTitle("")
     dummy_ratio.GetYaxis().SetRangeUser( 0.7 , 1.3 )
     dummy_ratio.GetYaxis().SetNdivisions(4)
-    dummy_ratio.GetYaxis().SetLabelSize(18.0)
-    dummy_ratio.GetXaxis().SetTitleSize(0.15)
-    dummy_ratio.GetXaxis().SetTitleOffset(1.0)
-    dummy_ratio.GetXaxis().SetLabelSize(20.0)
+    dummy_ratio.GetYaxis().SetLabelSize(25.0)
+    dummy_ratio.GetXaxis().SetTitleSize(0.2)
+    dummy_ratio.GetXaxis().SetTitleOffset(1.1)
+    dummy_ratio.GetXaxis().SetLabelSize(25.0)
     dummy_ratio.GetXaxis().SetTitle( settings.descriptions.get( "xaxis", "some quantity" ) )
+
+    dummy_ratio.GetXaxis().SetLabelOffset(0.03)
     
     print dummy_ratio.GetXaxis().GetLabelSize()
     print dummy_ratio.GetXaxis().GetLabelOffset()
@@ -331,17 +338,17 @@ def draw(content, dummies, objects, leg, settings):
 
     if canvas == "semi":
         dummy_up.GetYaxis().SetRangeUser( settings.maxVal/ 40 , settings.maxVal )
-        cv= createRatioSemiLogCanvas("cv" )
+        cv= createRatioSemiLogCanvas("cv", settings)
 
     if canvas == "linear":
         dummy_up.GetYaxis().SetRangeUser( 0 , settings.maxVal )
         dummy_up.GetXaxis().SetLabelSize(0)
-        cv= createRatioCanvas("cv" )
+        cv= createRatioCanvas("cv", settings)
 
     if canvas == "log":
         dummy_up.GetYaxis().SetRangeUser( 0.1 , settings.maxVal * 2 )
         dummy_up.GetXaxis().SetLabelSize(0)
-        cv= createRatioCanvas("cv" )
+        cv= createRatioCanvas("cv", settings)
 
     ## draw upper pad
     cv.cd(1)
@@ -356,7 +363,8 @@ def draw(content, dummies, objects, leg, settings):
     if canvas == "semi":
         data.Draw("same e")
     else:
-        data.Draw("same e1")
+        # data.Draw("same e1")
+        data.Draw("same e")
 
     leg.Draw()
     R.gPad.RedrawAxis()
@@ -373,7 +381,8 @@ def draw(content, dummies, objects, leg, settings):
     if canvas == "semi":
         ratio.Draw("same e")
     else:
-        ratio.Draw("same e1")
+        # ratio.Draw("same e1")
+        ratio.Draw("same e")
 
     if settings.signal:
         signal_ratio.Draw("same hist")
@@ -401,6 +410,12 @@ def draw(content, dummies, objects, leg, settings):
 
     if canvas == "semi":
         objects["semi_info"].Draw()
+
+    if canvas == "semi":
+        cv.cd(2)
+    else:
+        cv.cd(1)
+    R.gPad.RedrawAxis()
 
     return cv
 
@@ -470,7 +485,7 @@ def createRatioSemiLogCanvas(name):
     cv.cd(1)
     return cv
 
-def createRatioCanvas(name):
+def createRatioCanvas(name, settings):
 
     cv = R.TCanvas(name, name, 10, 10, 650, 700)
 
@@ -485,18 +500,27 @@ def createRatioCanvas(name):
     cv.GetPad(1).SetFillStyle(4000)
     cv.GetPad(2).SetFillStyle(4000)
 
+    if settings.canvasType == "linear":
+        lmargin = 0.20
+        rmargin = 0.03
+    else:
+        lmargin = 0.15
+        rmargin = 0.03
+
     # Set pad margins 1
     cv.cd(1)
     R.gPad.SetTopMargin(0.08)
-    R.gPad.SetBottomMargin(0.015)
-    R.gPad.SetLeftMargin(0.15)
-    R.gPad.SetRightMargin(0.03)
+    # R.gPad.SetBottomMargin(0.015)
+    R.gPad.SetBottomMargin(0.025)
+    R.gPad.SetLeftMargin(lmargin)
+    R.gPad.SetRightMargin(rmargin)
 
     cv.cd(2)
-    R.gPad.SetTopMargin(0.03)
-    R.gPad.SetBottomMargin(0.4)
-    R.gPad.SetLeftMargin(0.15)
-    R.gPad.SetRightMargin(0.03)
+    # R.gPad.SetTopMargin(0.03)
+    R.gPad.SetTopMargin(0.00)
+    R.gPad.SetBottomMargin(0.5)
+    R.gPad.SetLeftMargin(lmargin)
+    R.gPad.SetRightMargin(rmargin)
     R.gPad.SetGridy()
 
     cv.cd(1)
