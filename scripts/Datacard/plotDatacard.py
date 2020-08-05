@@ -99,10 +99,22 @@ def makePlot(channel, variable, indir, era, dir, args, outdir = "", syst=False )
             if plot and overlay: 
                 textlines = collect(dir, args, plottype)
                 pl.plot(histos, canvas="linear", signal = [], descriptions = {"plottype": "Project Work", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era, overlay=textlines )
-                pl.plot(histos, canvas="log", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era, overlay=textlines )
+                pl.plot(histos, canvas="log", signal = [], descriptions = {"plottype": "Project Work", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era, overlay=textlines )
+                pl.plot(histos, canvas="semi", signal = [], descriptions = {"plottype": "Project Work", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era, overlay=textlines )
             elif plot:
                 pl.plot(histos, canvas="linear", signal = [], descriptions = {"plottype": "Project Work", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era)
-                pl.plot(histos, canvas="log", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era)
+                pl.plot(histos, canvas="log", signal = [], descriptions = {"plottype": "Project Work", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era)
+                pl.plot(histos, canvas="semi", signal = [], descriptions = {"plottype": "Project Work", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png", era=era)
+            # if plot and overlay: 
+            #     textlines = collect(dir, args, plottype)
+            #     pl.plot(histos, canvas="linear", signal = [], descriptions = {"plottype": "Project Work", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png")
+            #     pl.plot(histos, canvas="log", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png")
+            #     pl.plot(histos, canvas="semi", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png")
+            # elif plot:
+            #     pl.plot(histos, canvas="linear", signal = [], descriptions = {"plottype": "Project Work", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png")
+            #     pl.plot(histos, canvas="log", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png")
+            #     pl.plot(histos, canvas="semi", signal = [], descriptions = {"plottype": "ProjectWork", "xaxis":var.tex, "channel":channel,"CoM": "13", "lumi":lumi  }, outfile = outdir +"/"+ cat+"_"+var.name + p[0] +".png")
+   
     file.Close() 
     
 

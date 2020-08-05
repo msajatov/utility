@@ -16,24 +16,21 @@ class PlotSettings:
         self.descriptions = descriptions
         self.era = era
 
-        if self.canvasType == "semi":
-            self.textsize = 0.04
-            self.cms1TextSize = self.textsize
-            self.cms2TextSize = self.textsize * 0.875
-            self.channelTextSize = self.textsize
-            self.rightTopTextSize = self.textsize * 0.875
+        self.textsize = 24
+        self.cms1TextSize = self.textsize
+        self.cms2TextSize = self.textsize * 0.875
+        self.channelTextSize = self.textsize
+        self.rightTopTextSize = self.textsize * 0.875
+    
+        legendTextSize = self.textsize
 
-            self.semiInfoTextSize = 0.15
+        # self.tickLabelSize = 24/(R.gPad.GetWh()*R.gPad.GetAbsHNDC())
+        # self.axisLabelSize = 28/(R.gPad.GetWh()*R.gPad.GetAbsHNDC())
+
+        if self.canvasType == "semi":
+            self.semiInfoTextSize = self.textsize
             self.semiInfo_x = 0.83
             self.semiInfo_y = 0.2
-
-        if self.canvasType == "linear" or self.canvasType == "log":           
-
-            self.textsize = 0.04
-            self.cms1TextSize = self.textsize
-            self.cms2TextSize = self.textsize * 0.875
-            self.channelTextSize = self.textsize
-            self.rightTopTextSize = self.textsize * 0.875
 
         self.cms1_x = 0.17
         self.cms1_y = 0.93
@@ -46,10 +43,67 @@ class PlotSettings:
     
         self.legendTextSize = self.textsize
 
+        if self.canvasType == "semi":
+            self.up_yLabelOffset = 0.015
+            self.down_yLabelOffset = 0.007
+            self.ratio_yLabelOffset = 0.015
+
+            self.up_yTitleSize = 0.07*75/55
+            self.down_yTitleSize = 0.07*75/55
+            self.ratio_yTitleSize = 0.07*75/55
+
+            self.up_yTitleOffset = 1.0
+            self.down_yTitleOffset = 1.0
+            self.ratio_yTitleOffset = 1.0
+
+        elif self.canvasType == "linear":
+            self.up_yLabelOffset = 0.015
+            self.ratio_yLabelOffset = 0.015
+
+            self.up_yTitleSize = 0.07
+            self.ratio_yTitleSize = 0.07
+
+            self.up_yTitleOffset = 1.35
+            self.ratio_yTitleOffset = 1.35
+
+        elif self.canvasType == "log":
+            self.up_yLabelOffset = 0.015
+            self.ratio_yLabelOffset = 0.015
+
+            self.up_yTitleSize = 0.07
+            self.ratio_yTitleSize = 0.07
+
+            self.up_yTitleOffset = 1.0
+            self.ratio_yTitleOffset = 1.0
+
+        self.ratio_xLabelOffset = 0.03
+
+        self.ratio_xTitleSize = 0.2
+        
+        self.ratio_xTitleOffset = 1.1
+
         self.width=600 
         self.height=600
 
         self.maxVal = 0
+
+    def setDimensions(self, width, height, leftMargin, topMargin, rightMargin, bottomMargin):
+
+        self.cms1_x = leftMargin
+        self.cms1_y = 1 - topMargin + 0.013 * 600 / height
+
+        self.cms2_x = leftMargin + 0.11 * 600 / width
+        self.cms2_y = self.cms1_y        
+
+        self.channel_x = 1 - rightMargin - 0.42 * 600 / width
+        self.channel_y = 1 - topMargin + 0.015 * 600 / height
+
+        self.righttop_x = 1 - rightMargin - 0.34 * 600 / width
+        self.righttop_y = 1 - topMargin + 0.015 * 600 / height
+
+        # leftCornerPos = [leftMargin, 1 - topMargin + 0.01 * 600 / height]
+        # rightCornerPos = [1 - rightMargin - 0.35 * 600 / width, 1 - topMargin + 0.012 * 600 / height]
+        # midTopPos = [1 - rightMargin - 0.43 * 600 / width, 1 - topMargin + 0.012 * 600 / height]
 
 def main():
 
@@ -86,13 +140,22 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {}, e
     settings = PlotSettings(canvas, withSignal, descriptions, era)
     content = generateContent(histos, signal, canvas, outfile, descriptions, era, overlay)
 
-    leg = getLegend(content, settings)
+    if settings.canvasType == "semi":
+        cv= createRatioSemiLogCanvas("cv", settings)
+
+    if settings.canvasType == "linear":
+        cv= createRatioCanvas("cv", settings)
+
+    if settings.canvasType == "log":
+        cv= createRatioCanvas("cv", settings)
+
+    leg = prepareLegend(content, settings)
 
     dummies = prepareDummies(content, settings)
 
     objects = prepareObjects(settings)
 
-    cv = draw(content, dummies, objects, leg, settings)
+    cv = draw(cv, content, dummies, objects, leg, settings)
 
     saveToFile(cv, outfile, canvas)
 
@@ -117,7 +180,8 @@ def generateContent(histos, signal=[], canvas = "semi", outfile = "", descriptio
     what = [ y[1] for y in yields ]
 
     cumul = copy.deepcopy(  histos[ what[0] ] )
-    cumul.SetFillColorAlpha(33,0.6);
+    # cumul.SetFillColorAlpha(33,0.6)
+    cumul.SetFillColorAlpha(15,0.6)
     applyHistStyle( histos[ what[0] ] , what[0] )
 
     stack = R.THStack("stack", "")
@@ -141,7 +205,8 @@ def generateContent(histos, signal=[], canvas = "semi", outfile = "", descriptio
     for i in xrange( ratio_error.GetNbinsX() + 1 ):
         ratio_error.SetBinError(i,0.0)
     ratio_error.Divide(cumul)
-    ratio_error.SetFillColorAlpha(33,0.7)
+    # ratio_error.SetFillColorAlpha(33,0.7)
+    ratio_error.SetFillColorAlpha(15,0.6)
 
 
     if signal:
@@ -172,18 +237,19 @@ def generateContent(histos, signal=[], canvas = "semi", outfile = "", descriptio
 
     return content
 
-def prepareObjects(settings):
+def prepareObjects(settings): 
 
     cms1 = R.TLatex( settings.cms1_x, settings.cms1_y, "CMS" )
     cms2 = R.TLatex( settings.cms2_x, settings.cms2_y, settings.descriptions.get( "plottype", "ProjectWork" ) )
 
-    chtex = {"et": r"#font[42]{#scale[0.95]{e}}#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
+    chtex = {"et": r"#font[42]{#scale[0.95]{e}}#tau_{#lower[-0.1]{h}}", "mt": r"#mu"r"#tau_{#lower[-0.3]{h}}", "tt": r"#tau_{#lower[-0.1]{h}}#tau_{#lower[-0.1]{h}}", "em": r"e#mu"}
     ch = settings.descriptions.get( "channel", "  " )
     ch = chtex.get(ch,ch)
     channel = R.TLatex( settings.channel_x, settings.channel_y, ch )
 
     lumi = settings.descriptions.get( "lumi", "xx.y" )
     som = settings.descriptions.get( "CoM", "13" )
+    era = settings.descriptions.get("era", "2017")
     l = lumi + r" fb^{-1}"
     r = " ({1}, {0} TeV)".format(som, settings.era)
     righttop = R.TLatex( settings.righttop_x, settings.righttop_y, l+r)
@@ -193,14 +259,18 @@ def prepareObjects(settings):
     righttop.SetNDC()
     channel.SetNDC()
 
-    cms1.SetTextSize(settings.cms1TextSize)
-    cms2.SetTextFont(42)
+    cms1.SetTextSize(settings.cms1TextSize)    
+    cms1.SetTextFont(63)       
+    cms2.SetTextFont(43)
     cms2.SetTextSize(settings.cms2TextSize)
     righttop.SetTextSize(settings.rightTopTextSize)
+    righttop.SetTextFont(63)
     channel.SetTextSize(settings.channelTextSize)
+    channel.SetTextFont(43)
 
     if settings.canvasType == "semi":
         semi_info = R.TLatex( settings.semiInfo_x, settings.semiInfo_y, "log-scale")
+        semi_info.SetTextFont(43)
         semi_info.SetTextAngle(90)
         semi_info.SetNDC()
         semi_info.SetTextSize(settings.semiInfoTextSize)
@@ -220,7 +290,7 @@ def prepareObjects(settings):
 def adjustSettings(settings):
     pass
 
-def getLegend(content, settings):
+def prepareLegend(content, settings):
     
 
 #     if canvas == "semi":                      
@@ -234,12 +304,19 @@ def getLegend(content, settings):
 
     if canvas == "semi":                      
         leg = R.TLegend(0.65, 1 - 0.5*75/55, 0.96, 1 - 0.10*75/55)
-        leg.SetTextSize(0.04*75/55)
+        # leg.SetTextSize(0.04*75/55)
     if canvas == "linear" or canvas == "log":
         leg = R.TLegend(0.65, 0.5, 0.96, 0.90)
-        leg.SetTextSize(0.04)
+        # leg.SetTextSize(0.04)
         
+    # leg.SetBorderSize(0)
+
+    leg.SetTextSize(settings.legendTextSize)
+    leg.SetTextFont(43)     
     leg.SetBorderSize(0)
+    leg.SetFillColor(10)
+    leg.SetLineWidth(0)
+    leg.SetFillStyle(0)
     
     leg.AddEntry( content["data"], "data obs." )
 
@@ -252,6 +329,8 @@ def getLegend(content, settings):
 
 def prepareDummies(content, settings):
 
+    dummies = {}
+
     data = content["data"]
     stack = content["stack"]
     cumul = content["cumul"]
@@ -262,24 +341,29 @@ def prepareDummies(content, settings):
     dummy_up    = copy.deepcopy( data )
     dummy_up.Reset()
     dummy_up.SetTitle("")
-    dummy_up.GetYaxis().SetTitleSize(0.05*75/55)
 
-    if settings.canvasType == "log":
-        dummy_up.GetYaxis().SetTitleOffset(1.4*55/75)
-    else:
-        dummy_up.GetYaxis().SetTitleOffset(2.0*55/75)
+    dummy_up.GetYaxis().SetTitleSize(settings.up_yTitleSize)    
+    dummy_up.GetYaxis().SetTitleOffset(settings.up_yTitleOffset)
     
     dummy_up.GetYaxis().SetLabelSize(25.0)
     dummy_up.GetYaxis().SetTitle( r"Event Count" )
 
-    dummy_down  = copy.deepcopy( data )
-    dummy_down.Reset()
-    dummy_down.SetTitle("")
-    dummy_down.GetYaxis().SetRangeUser( 0.1 , settings.maxVal/ 40 )
-    dummy_down.GetYaxis().SetLabelSize(25.0)
-    dummy_down.GetXaxis().SetLabelSize(0)
-    dummy_down.GetXaxis().SetTitle("")
-    
+    dummy_up.GetYaxis().SetLabelOffset(settings.up_yLabelOffset)
+
+    dummies["up"] = dummy_up
+
+    if settings.canvasType == "semi":
+        dummy_down  = copy.deepcopy( data )
+        dummy_down.Reset()
+        dummy_down.SetTitle("")
+        dummy_down.GetYaxis().SetRangeUser( 0.1 , settings.maxVal/ 40 )
+        dummy_down.GetYaxis().SetLabelSize(25.0)
+        dummy_down.GetXaxis().SetLabelSize(0)
+        dummy_down.GetXaxis().SetTitle("")
+
+        dummy_down.GetYaxis().SetLabelOffset(settings.down_yLabelOffset)
+
+        dummies["down"] = dummy_down    
 
     dummy_ratio = copy.deepcopy( ratio )
     dummy_ratio.Reset()
@@ -287,37 +371,31 @@ def prepareDummies(content, settings):
     dummy_ratio.GetYaxis().SetRangeUser( 0.7 , 1.3 )
     dummy_ratio.GetYaxis().SetNdivisions(4)
     dummy_ratio.GetYaxis().SetLabelSize(25.0)
-    dummy_ratio.GetXaxis().SetTitleSize(0.2)
-    dummy_ratio.GetXaxis().SetTitleOffset(1.1)
+    dummy_ratio.GetXaxis().SetTitleSize(settings.ratio_xTitleSize)
+    dummy_ratio.GetXaxis().SetTitleOffset(settings.ratio_xTitleOffset)
     dummy_ratio.GetXaxis().SetLabelSize(25.0)
     dummy_ratio.GetXaxis().SetTitle( settings.descriptions.get( "xaxis", "some quantity" ) )
 
-    dummy_ratio.GetXaxis().SetLabelOffset(0.03)
-    
-    print dummy_ratio.GetXaxis().GetLabelSize()
-    print dummy_ratio.GetXaxis().GetLabelOffset()
-    print dummy_ratio.GetYaxis().GetLabelOffset()
-    print dummy_up.GetYaxis().GetLabelOffset()
-    print dummy_down.GetYaxis().GetLabelOffset()
-    
-    dummy_ratio.GetYaxis().SetLabelOffset(0.015)
-    dummy_up.GetYaxis().SetLabelOffset(0.015)
-    dummy_down.GetYaxis().SetLabelOffset(0.007)
-    
-    print dummy_ratio.GetXaxis().GetLabelSize()
-    print dummy_ratio.GetXaxis().GetLabelOffset()
-    print dummy_ratio.GetYaxis().GetLabelOffset()
-    print dummy_up.GetYaxis().GetLabelOffset()
-    print dummy_down.GetYaxis().GetLabelOffset()
+    dummy_ratio.GetXaxis().SetLabelOffset(settings.ratio_xLabelOffset)
+    dummy_ratio.GetYaxis().SetLabelOffset(settings.ratio_yLabelOffset)
 
-    dummies = {}
-    dummies["up"] = dummy_up
-    dummies["down"] = dummy_down
-    dummies["ratio"] = dummy_ratio
+    dummies["ratio"] = dummy_ratio    
+    
+    # print dummy_ratio.GetXaxis().GetLabelSize()
+    # print dummy_ratio.GetXaxis().GetLabelOffset()
+    # print dummy_ratio.GetYaxis().GetLabelOffset()
+    # print dummy_up.GetYaxis().GetLabelOffset()
+    # print dummy_down.GetYaxis().GetLabelOffset()       
+    
+    # print dummy_ratio.GetXaxis().GetLabelSize()
+    # print dummy_ratio.GetXaxis().GetLabelOffset()
+    # print dummy_ratio.GetYaxis().GetLabelOffset()
+    # print dummy_up.GetYaxis().GetLabelOffset()
+    # print dummy_down.GetYaxis().GetLabelOffset()
 
     return dummies
 
-def draw(content, dummies, objects, leg, settings):
+def draw(cv, content, dummies, objects, leg, settings):
 
     canvas = settings.canvasType
 
@@ -338,17 +416,17 @@ def draw(content, dummies, objects, leg, settings):
 
     if canvas == "semi":
         dummy_up.GetYaxis().SetRangeUser( settings.maxVal/ 40 , settings.maxVal )
-        cv= createRatioSemiLogCanvas("cv", settings)
+        # cv= createRatioSemiLogCanvas("cv", settings)
 
     if canvas == "linear":
         dummy_up.GetYaxis().SetRangeUser( 0 , settings.maxVal )
         dummy_up.GetXaxis().SetLabelSize(0)
-        cv= createRatioCanvas("cv", settings)
+        # cv= createRatioCanvas("cv", settings)
 
     if canvas == "log":
         dummy_up.GetYaxis().SetRangeUser( 0.1 , settings.maxVal * 2 )
         dummy_up.GetXaxis().SetLabelSize(0)
-        cv= createRatioCanvas("cv", settings)
+        # cv= createRatioCanvas("cv", settings)
 
     ## draw upper pad
     cv.cd(1)
@@ -396,8 +474,8 @@ def draw(content, dummies, objects, leg, settings):
         stack.Draw("same hist")
         cumul.Draw("same e2")
         data.Draw("same e1")
-        for s in signal_hists:
-            s.Draw("same hist")
+        # for s in signal_hists:
+        #     s.Draw("same hist")
 
         R.gPad.RedrawAxis()
 
@@ -443,9 +521,9 @@ def saveToFile(cv, outfile, canvas):
     print filename
     cv.SaveAs(filename)
 
-def createRatioSemiLogCanvas(name):
+def createRatioSemiLogCanvas(name, settings, width=650, height=700):
 
-    cv = R.TCanvas(name, name, 10, 10, 650, 700)
+    cv = R.TCanvas(name, name, 10, 10, width, height)
 
     # this is the tricky part...
     # Divide with correct margins
@@ -460,34 +538,41 @@ def createRatioSemiLogCanvas(name):
     cv.GetPad(2).SetFillStyle(4000)
     cv.GetPad(3).SetFillStyle(4000)
 
+    lmargin = 0.19
+    rmargin = 0.05
+    tmargin = 0.08
+    bmargin = 0.5
+
     # Set pad margins 1
     cv.cd(1)
-    R.gPad.SetTopMargin(0.08)
+    R.gPad.SetTopMargin(tmargin)
     R.gPad.SetBottomMargin(0)
-    R.gPad.SetLeftMargin(0.15)
-    R.gPad.SetRightMargin(0.03)
+    R.gPad.SetLeftMargin(lmargin)
+    R.gPad.SetRightMargin(rmargin)
 
     cv.cd(2)
     R.gPad.SetTopMargin(0.05)
-    R.gPad.SetLeftMargin(0.15)
+    R.gPad.SetLeftMargin(lmargin)
     R.gPad.SetBottomMargin(0.08)
-    R.gPad.SetRightMargin(0.03)
+    R.gPad.SetRightMargin(rmargin)
     R.gPad.SetLogy()
 
     # Set pad margins 2
     cv.cd(3)
     R.gPad.SetTopMargin(0.03)
-    R.gPad.SetBottomMargin(0.4)
-    R.gPad.SetLeftMargin(0.15)
-    R.gPad.SetRightMargin(0.03)
+    R.gPad.SetBottomMargin(bmargin)
+    R.gPad.SetLeftMargin(lmargin)
+    R.gPad.SetRightMargin(rmargin)
     R.gPad.SetGridy()
+
+    settings.setDimensions(width, height, lmargin, tmargin, rmargin, bmargin)
 
     cv.cd(1)
     return cv
 
-def createRatioCanvas(name, settings):
+def createRatioCanvas(name, settings, width=650, height=700):
 
-    cv = R.TCanvas(name, name, 10, 10, 650, 700)
+    cv = R.TCanvas(name, name, 10, 10, width, height)
 
     # this is the tricky part...
     # Divide with correct margins
@@ -501,27 +586,40 @@ def createRatioCanvas(name, settings):
     cv.GetPad(2).SetFillStyle(4000)
 
     if settings.canvasType == "linear":
-        lmargin = 0.20
-        rmargin = 0.03
+        # lmargin = 0.18
+        lmargin = 0.19
+        # rmargin = 0.03
+        rmargin = 0.05
     else:
         lmargin = 0.15
         rmargin = 0.03
 
+    tmargin = 0.06 * 4 / 3
+    # tmargin = 0.08
+
+    R.gStyle.SetGridStyle(1)
+    R.gStyle.SetGridColor(15)
+    # R.gStyle.SetGridWidth(3)
+
     # Set pad margins 1
     cv.cd(1)
-    R.gPad.SetTopMargin(0.08)
+    R.gPad.SetTopMargin(tmargin)
     # R.gPad.SetBottomMargin(0.015)
     R.gPad.SetBottomMargin(0.025)
     R.gPad.SetLeftMargin(lmargin)
     R.gPad.SetRightMargin(rmargin)
 
+    bmargin = 0.5
+
     cv.cd(2)
     # R.gPad.SetTopMargin(0.03)
     R.gPad.SetTopMargin(0.00)
-    R.gPad.SetBottomMargin(0.5)
+    R.gPad.SetBottomMargin(bmargin)
     R.gPad.SetLeftMargin(lmargin)
     R.gPad.SetRightMargin(rmargin)
     R.gPad.SetGridy()
+
+    settings.setDimensions(width, height, lmargin, tmargin, rmargin, bmargin)
 
     cv.cd(1)
     return cv
