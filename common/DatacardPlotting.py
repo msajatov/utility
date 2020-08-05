@@ -24,13 +24,18 @@ class PlotSettings:
     
         legendTextSize = self.textsize
 
+        
+
         # self.tickLabelSize = 24/(R.gPad.GetWh()*R.gPad.GetAbsHNDC())
         # self.axisLabelSize = 28/(R.gPad.GetWh()*R.gPad.GetAbsHNDC())
 
         if self.canvasType == "semi":
             self.semiInfoTextSize = self.textsize
-            self.semiInfo_x = 0.83
-            self.semiInfo_y = 0.2
+            self.semiInfo_x = 0.3
+            self.semiInfo_y = 0.1
+
+        self.ratioTitle_x = 0.05
+        self.ratioTitle_y = 0.2
 
         self.cms1_x = 0.17
         self.cms1_y = 0.93
@@ -50,28 +55,31 @@ class PlotSettings:
 
             self.up_yTitleSize = 0.07*75/55
             self.down_yTitleSize = 0.07*75/55
-            self.ratio_yTitleSize = 0.07*75/55
+            self.ratio_yTitleSize = 0.07*75/25
+            self.ratioTitleTextSize = 0.07*75/25
 
-            self.up_yTitleOffset = 1.0
-            self.down_yTitleOffset = 1.0
-            self.ratio_yTitleOffset = 1.0
+            self.up_yTitleOffset = 1.1
+            self.down_yTitleOffset = 0
+            self.ratio_yTitleOffset = 0.48
 
         elif self.canvasType == "linear":
             self.up_yLabelOffset = 0.015
             self.ratio_yLabelOffset = 0.015
 
             self.up_yTitleSize = 0.07
-            self.ratio_yTitleSize = 0.07
+            self.ratio_yTitleSize = 0.07*75/25
+            self.ratioTitleTextSize = 0.07*75/25
 
-            self.up_yTitleOffset = 1.35
-            self.ratio_yTitleOffset = 1.35
+            self.up_yTitleOffset = 1.40
+            self.ratio_yTitleOffset = 1.40
 
         elif self.canvasType == "log":
             self.up_yLabelOffset = 0.015
             self.ratio_yLabelOffset = 0.015
 
             self.up_yTitleSize = 0.07
-            self.ratio_yTitleSize = 0.07
+            self.ratio_yTitleSize = 0.07*75/25
+            self.ratioTitleTextSize = 0.07*75/25
 
             self.up_yTitleOffset = 1.0
             self.ratio_yTitleOffset = 1.0
@@ -276,11 +284,19 @@ def prepareObjects(settings):
         semi_info.SetTextSize(settings.semiInfoTextSize)
         semi_info.SetTextColor(  R.TColor.GetColor(125,125,125) )
 
+    ratio_title = R.TLatex( settings.ratioTitle_x, settings.ratioTitle_y, "Obs./Exp.")
+    ratio_title.SetTextFont(42)
+    ratio_title.SetTextAngle(90)
+    ratio_title.SetNDC()
+    ratio_title.SetTextSize(settings.ratioTitleTextSize)
+
     objects = {}
     objects["cms1"] = cms1
     objects["cms2"] = cms2
     objects["righttop"] = righttop
     objects["channel"] = channel
+
+    objects["ratio_title"] = ratio_title
 
     if settings.canvasType == "semi":
         objects["semi_info"] = semi_info
@@ -290,16 +306,7 @@ def prepareObjects(settings):
 def adjustSettings(settings):
     pass
 
-def prepareLegend(content, settings):
-    
-
-#     if canvas == "semi":                      
-#         leg = R.TLegend(0.82, 0.03, 0.98, 0.92)
-#         leg.SetTextSize(0.05)
-#     if canvas == "linear" or canvas == "log":
-#         leg = R.TLegend(0.82, 0.29, 0.98, 0.92)
-#         leg.SetTextSize(0.035)
-
+def prepareLegend(content, settings): 
     canvas = settings.canvasType
 
     if canvas == "semi":                      
@@ -311,19 +318,21 @@ def prepareLegend(content, settings):
         
     # leg.SetBorderSize(0)
 
+    
+    
+    leg.AddEntry( content["data"], "Obs. Data")
+
+    for n in reversed(content["what"]):
+        leg.AddEntry( content["histos"][n], getFancyName(n), "pf" )
+    for s in content["signal_hists"]:
+        leg.AddEntry( s, getFancyName( s.GetName() ), "pf" )
+
     leg.SetTextSize(settings.legendTextSize)
     leg.SetTextFont(43)     
     leg.SetBorderSize(0)
     leg.SetFillColor(10)
     leg.SetLineWidth(0)
     leg.SetFillStyle(0)
-    
-    leg.AddEntry( content["data"], "data obs." )
-
-    for n in reversed(content["what"]):
-        leg.AddEntry( content["histos"][n], getFancyName(n) )
-    for s in content["signal_hists"]:
-        leg.AddEntry( s, getFancyName( s.GetName() ) )
 
     return leg
 
@@ -375,6 +384,10 @@ def prepareDummies(content, settings):
     dummy_ratio.GetXaxis().SetTitleOffset(settings.ratio_xTitleOffset)
     dummy_ratio.GetXaxis().SetLabelSize(25.0)
     dummy_ratio.GetXaxis().SetTitle( settings.descriptions.get( "xaxis", "some quantity" ) )
+
+    # dummy_ratio.GetYaxis().SetTitle( r"Obs./Exp." )
+    # dummy_ratio.GetYaxis().SetTitleSize(settings.ratio_yTitleSize) 
+    # dummy_ratio.GetYaxis().SetTitleOffset(settings.ratio_yTitleOffset)
 
     dummy_ratio.GetXaxis().SetLabelOffset(settings.ratio_xLabelOffset)
     dummy_ratio.GetYaxis().SetLabelOffset(settings.ratio_yLabelOffset)
@@ -462,6 +475,8 @@ def draw(cv, content, dummies, objects, leg, settings):
         # ratio.Draw("same e1")
         ratio.Draw("same e")
 
+    # objects["ratio_title"].Draw()
+
     if settings.signal:
         signal_ratio.Draw("same hist")
 
@@ -486,8 +501,8 @@ def draw(cv, content, dummies, objects, leg, settings):
     objects["channel"].Draw()
     objects["righttop"].Draw()
 
-    if canvas == "semi":
-        objects["semi_info"].Draw()
+    # if canvas == "semi":
+    #     objects["semi_info"].Draw()
 
     if canvas == "semi":
         cv.cd(2)
@@ -521,7 +536,7 @@ def saveToFile(cv, outfile, canvas):
     print filename
     cv.SaveAs(filename)
 
-def createRatioSemiLogCanvas(name, settings, width=650, height=700):
+def createRatioSemiLogCanvas(name, settings, width=600, height=700):
 
     cv = R.TCanvas(name, name, 10, 10, width, height)
 
@@ -570,7 +585,7 @@ def createRatioSemiLogCanvas(name, settings, width=650, height=700):
     cv.cd(1)
     return cv
 
-def createRatioCanvas(name, settings, width=650, height=700):
+def createRatioCanvas(name, settings, width=600, height=700):
 
     cv = R.TCanvas(name, name, 10, 10, width, height)
 
