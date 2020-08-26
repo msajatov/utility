@@ -21,10 +21,8 @@ class PlotSettings:
         self.cms2TextSize = self.textsize * 0.875
         self.channelTextSize = self.textsize
         self.rightTopTextSize = self.textsize * 0.875
-    
-        legendTextSize = self.textsize
 
-        
+        self.axisTitleSize = 30
 
         # self.tickLabelSize = 24/(R.gPad.GetWh()*R.gPad.GetAbsHNDC())
         # self.axisLabelSize = 28/(R.gPad.GetWh()*R.gPad.GetAbsHNDC())
@@ -41,9 +39,9 @@ class PlotSettings:
         self.cms1_y = 0.93
         self.cms2_x = 0.245
         self.cms2_y = 0.93
-        self.righttop_x = 0.655
-        self.righttop_y = 0.932
-        self.channel_x = 0.60
+        self.righttop_x = 0.4
+        self.righttop_y = 0.93
+        self.channel_x = 0.56
         self.channel_y = 0.93
     
         self.legendTextSize = self.textsize
@@ -58,9 +56,9 @@ class PlotSettings:
             self.ratio_yTitleSize = 0.07*75/25
             self.ratioTitleTextSize = 0.07*75/25
 
-            self.up_yTitleOffset = 1.1
-            self.down_yTitleOffset = 0
-            self.ratio_yTitleOffset = 0.48
+            self.up_yTitleOffset = 2.2
+            self.down_yTitleOffset = 2.1
+            self.ratio_yTitleOffset = 2.1
 
         elif self.canvasType == "linear":
             self.up_yLabelOffset = 0.015
@@ -70,8 +68,8 @@ class PlotSettings:
             self.ratio_yTitleSize = 0.07*75/25
             self.ratioTitleTextSize = 0.07*75/25
 
-            self.up_yTitleOffset = 1.40
-            self.ratio_yTitleOffset = 1.40
+            self.up_yTitleOffset = 2.2
+            self.ratio_yTitleOffset = 2.1
 
         elif self.canvasType == "log":
             self.up_yLabelOffset = 0.015
@@ -81,14 +79,14 @@ class PlotSettings:
             self.ratio_yTitleSize = 0.07*75/25
             self.ratioTitleTextSize = 0.07*75/25
 
-            self.up_yTitleOffset = 1.0
-            self.ratio_yTitleOffset = 1.0
+            self.up_yTitleOffset = 1.7
+            self.ratio_yTitleOffset = 1.65
 
         self.ratio_xLabelOffset = 0.03
 
         self.ratio_xTitleSize = 0.2
         
-        self.ratio_xTitleOffset = 1.1
+        self.ratio_xTitleOffset = 5
 
         self.width=600 
         self.height=600
@@ -190,6 +188,10 @@ def generateContent(histos, signal=[], canvas = "semi", outfile = "", descriptio
     cumul = copy.deepcopy(  histos[ what[0] ] )
     # cumul.SetFillColorAlpha(33,0.6)
     cumul.SetFillColorAlpha(15,0.6)
+    cumul.SetLineWidth(0)
+    cumul.SetLineColorAlpha(15,0.6)
+    cumul.SetMarkerColorAlpha(15,0.0)
+
     applyHistStyle( histos[ what[0] ] , what[0] )
 
     stack = R.THStack("stack", "")
@@ -318,14 +320,18 @@ def prepareLegend(content, settings):
         
     # leg.SetBorderSize(0)
 
-    
+    # dummy_err = TH1F("Uncertainty")
+    # dummy_err.SetFillColor( getColor( name ) )
+    # dummy_err.SetLineColor( R.kBlack )
     
     leg.AddEntry( content["data"], "Obs. Data")
 
     for n in reversed(content["what"]):
-        leg.AddEntry( content["histos"][n], getFancyName(n), "pf" )
+        leg.AddEntry( content["histos"][n], getFancyName(n), "f" )
     for s in content["signal_hists"]:
-        leg.AddEntry( s, getFancyName( s.GetName() ), "pf" )
+        leg.AddEntry( s, getFancyName( s.GetName() ), "f" )
+
+    leg.AddEntry(content["cumul"], "Uncertainty", "f")
 
     leg.SetTextSize(settings.legendTextSize)
     leg.SetTextFont(43)     
@@ -351,8 +357,9 @@ def prepareDummies(content, settings):
     dummy_up.Reset()
     dummy_up.SetTitle("")
 
-    dummy_up.GetYaxis().SetTitleSize(settings.up_yTitleSize)    
+    dummy_up.GetYaxis().SetTitleSize(settings.axisTitleSize)    
     dummy_up.GetYaxis().SetTitleOffset(settings.up_yTitleOffset)
+    dummy_up.GetYaxis().SetTitleFont(43)
     
     dummy_up.GetYaxis().SetLabelSize(25.0)
     dummy_up.GetYaxis().SetTitle( r"Event Count" )
@@ -369,6 +376,8 @@ def prepareDummies(content, settings):
         dummy_down.GetYaxis().SetLabelSize(25.0)
         dummy_down.GetXaxis().SetLabelSize(0)
         dummy_down.GetXaxis().SetTitle("")
+        dummy_down.GetYaxis().SetTitleFont(43)
+        dummy_down.GetYaxis().SetTitleSize(settings.axisTitleSize)   
 
         dummy_down.GetYaxis().SetLabelOffset(settings.down_yLabelOffset)
 
@@ -380,14 +389,16 @@ def prepareDummies(content, settings):
     dummy_ratio.GetYaxis().SetRangeUser( 0.7 , 1.3 )
     dummy_ratio.GetYaxis().SetNdivisions(4)
     dummy_ratio.GetYaxis().SetLabelSize(25.0)
-    dummy_ratio.GetXaxis().SetTitleSize(settings.ratio_xTitleSize)
+    dummy_ratio.GetXaxis().SetTitleFont(43)
+    dummy_ratio.GetXaxis().SetTitleSize(settings.axisTitleSize)
     dummy_ratio.GetXaxis().SetTitleOffset(settings.ratio_xTitleOffset)
     dummy_ratio.GetXaxis().SetLabelSize(25.0)
     dummy_ratio.GetXaxis().SetTitle( settings.descriptions.get( "xaxis", "some quantity" ) )
 
-    # dummy_ratio.GetYaxis().SetTitle( r"Obs./Exp." )
-    # dummy_ratio.GetYaxis().SetTitleSize(settings.ratio_yTitleSize) 
-    # dummy_ratio.GetYaxis().SetTitleOffset(settings.ratio_yTitleOffset)
+    dummy_ratio.GetYaxis().SetTitle( r"Obs./Exp." )
+    dummy_ratio.GetYaxis().SetTitleFont(43)
+    dummy_ratio.GetYaxis().SetTitleSize(settings.axisTitleSize) 
+    dummy_ratio.GetYaxis().SetTitleOffset(settings.ratio_yTitleOffset)
 
     dummy_ratio.GetXaxis().SetLabelOffset(settings.ratio_xLabelOffset)
     dummy_ratio.GetYaxis().SetLabelOffset(settings.ratio_yLabelOffset)
@@ -410,6 +421,7 @@ def prepareDummies(content, settings):
 
 def draw(cv, content, dummies, objects, leg, settings):
 
+    print "Entering draw..."
     canvas = settings.canvasType
 
     dummy_up = dummies["up"]
@@ -508,7 +520,15 @@ def draw(cv, content, dummies, objects, leg, settings):
         cv.cd(2)
     else:
         cv.cd(1)
+
+    R.gPad.Update()
     R.gPad.RedrawAxis()
+    line = R.TLine()
+
+    if canvas == "semi":  
+        line.DrawLine(R.gPad.GetUxmax(), R.gPad.GetUymin(), R.gPad.GetUxmax(), settings.maxVal/ 40)
+    else:
+        line.DrawLine(R.gPad.GetUxmax(), R.gPad.GetUymin(), R.gPad.GetUxmax(), settings.maxVal)  
 
     return cv
 
@@ -604,10 +624,10 @@ def createRatioCanvas(name, settings, width=600, height=700):
         # lmargin = 0.18
         lmargin = 0.19
         # rmargin = 0.03
-        rmargin = 0.05
+        rmargin = 0.04
     else:
         lmargin = 0.15
-        rmargin = 0.03
+        rmargin = 0.02
 
     tmargin = 0.06 * 4 / 3
     # tmargin = 0.08
@@ -662,19 +682,19 @@ def applySignalHistStyle(hist, name, width = 1):
 
 
 def getFancyName(name):
-    if name == "ZL":                return r"Z (l#rightarrow#tau)"
-    if name == "ZJ":                return r"Z (jet#rightarrow#tau)"
+    if name == "ZL":                return r"Z (l #rightarrow #tau)"
+    if name == "ZJ":                return r"Z (Jet #rightarrow #tau)"
     if name == "ZTT":               return r"Z #rightarrow #tau#tau"
     if name == "EMB":         return r"Genuine #tau#tau"
-    if name == "TTT":               return r"t#bar{t} (#tau#rightarrow#tau)"
-    if name == "TTJ":               return r"t#bar{t} (jet#rightarrow#tau)"
-    if name == "TTL":               return r"t#bar{t} (l#rightarrow#tau)"    
-    if name == "VVT":               return r"VV (#tau#rightarrow#tau)"
-    if name == "VVJ":               return r"VV (jet#rightarrow#tau)"
-    if name == "VVL":               return r"VV (l#rightarrow#tau)"    
+    if name == "TTT":               return r"t#bar{t} (#tau #rightarrow #tau)"
+    if name == "TTJ":               return r"t#bar{t} (Jet #rightarrow #tau)"
+    if name == "TTL":               return r"t#bar{t} (l #rightarrow #tau)"    
+    if name == "VVT":               return r"VV (#tau#rightarrow #tau)"
+    if name == "VVJ":               return r"VV (Jet #rightarrow #tau)"
+    if name == "VVL":               return r"VV (l #rightarrow #tau)"    
     if name == "W":                 return r"W + jet"
     if name == "QCD":               return r"MultiJet"
-    if name == "jetFakes":          return r"jet #rightarrow #tau_{h}"
+    if name == "jetFakes":          return r"Jet #rightarrow #tau_{h}"
     if name == "jetFakes_W":        return r"W + jet ( F_{F} )"
     if name == "jetFakes_TT":       return r"t#bar{t} ( F_{F} )"
     if name == "jetFakes_QCD":      return r"MultiJet ( F_{F} )"    
